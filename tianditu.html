@@ -64,6 +64,7 @@
 		<script src="https://js.arcgis.com/4.13/"></script>
 		<script type="text/javascript" src="js/coordTransfer.js"></script>
 		<script>
+			var map,view;
 			require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/layers/BaseTileLayer", "esri/layers/support/TileInfo", "esri/layers/WebTileLayer", "esri/symbols/LabelSymbol3D", "esri/Color", "esri/widgets/DirectLineMeasurement3D/DirectLineMeasurement3DViewModel", "esri/widgets/AreaMeasurement3D/AreaMeasurement3DViewModel",
 					"esri/config", "esri/Basemap", "esri/request", "esri/widgets/BasemapGallery", "esri/widgets/Expand", "esri/widgets/ScaleBar",
 					"esri/layers/TileLayer", "esri/layers/MapImageLayer", "esri/layers/FeatureLayer", "esri/widgets/LayerList", "esri/core/urlUtils",
@@ -71,14 +72,14 @@
 					"esri/layers/support/LabelClass", "esri/WebMap", "esri/views/2d/draw/Draw", "esri/geometry/Polygon", "esri/geometry/Polyline",
 					"esri/geometry/geometryEngine", "esri/widgets/Legend", "esri/symbols/PictureMarkerSymbol", "esri/symbols/Font", "esri/tasks/IdentifyTask", "esri/tasks/support/IdentifyParameters", "dojo/_base/array",
 					"esri/widgets/Zoom", "esri/widgets/NavigationToggle", "esri/widgets/Compass", "esri/widgets/DirectLineMeasurement3D",
-					"esri/widgets/AreaMeasurement3D"
+					"esri/widgets/AreaMeasurement3D","esri/Camera"
 				],
 				function(Map, MapView, SceneView, BaseTileLayer, TileInfo, WebTileLayer, LabelSymbol3D, Color, DirectLineMeasurement3DViewModel, AreaMeasurement3DViewModel,
 					esriConfig, Basemap, esriRequest, BasemapGallery, Expand, ScaleBar, TileLayer, MapImageLayer, FeatureLayer, LayerList, urlUtils,
 					QueryTask, Query, Graphic, GraphicsLayer, Point, TextSymbol, ElevationLayer, LabelClass,
 					WebMap, Draw, Polygon, Polyline, geometryEngine, Legend, PictureMarkerSymbol, Font, IdentifyTask, IdentifyParameters, arrayUtils,
 					Zoom, NavigationToggle, Compass, DirectLineMeasurement3D,
-					AreaMeasurement3D) {
+					AreaMeasurement3D,Camera) {
 					var rings = [
 						[
 							[119.1, 50.0],
@@ -223,22 +224,24 @@
 						thumbnailUrl: "img/streets.png"
 					});
 
-					var map = new Map({
+					map = new Map({
 						basemap: imageBasemap2,
 						ground: "world-elevation" // show elevation
 					});
-
-					var view = new SceneView({
+					
+					// 初始地图视角
+					var cam = new Camera({
+						position: { // observation point
+							x: 111.32800,
+							y: 38.01493,
+							z: 3000 // altitude in meters
+						},
+						tilt: 70 // perspective in degrees
+					});
+					view = new SceneView({
 						container: "viewDiv",
+						camera : cam,
 						map: map,
-						camera: {
-							position: { // observation point
-								x: 111.32800,
-								y: 38.01493,
-								z: 3000 // altitude in meters
-							},
-							tilt: 70 // perspective in degrees
-						}
 					});
 
 					// 底图切换
@@ -291,7 +294,13 @@
 					// 初始地图
 					document.getElementById("topbar_intit_map").style.display = "inline";
 					view.ui.add("topbar_intit_map", "top-left");
-
+					document
+						.getElementById("intit_map")
+						.addEventListener("click", function() {
+							view.goTo(cam);
+						});
+						
+						
 					// 长度,面积量算
 					var activeWidget = null;
 					// add the toolbar for the measurement widgets
