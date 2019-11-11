@@ -13,16 +13,13 @@
 				height: 100%;
 				width: 100%;
 			}
-			.esri-component, .esri-attribution, .esri-widget{
-				display: none;
-			}
 		</style>
 
 		<link rel="stylesheet" href="https://js.arcgis.com/4.13/esri/css/main.css">
 		<script src="https://js.arcgis.com/4.13/"></script>
-		
+
 		<script>
-			require(["esri/Map", "esri/views/MapView","esri/widgets/Locate", "esri/views/SceneView", "esri/layers/BaseTileLayer", "esri/layers/support/TileInfo", "esri/layers/WebTileLayer", "esri/symbols/LabelSymbol3D", "esri/Color", "esri/widgets/DirectLineMeasurement3D/DirectLineMeasurement3DViewModel", "esri/widgets/AreaMeasurement3D/AreaMeasurement3DViewModel",
+			require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/layers/BaseTileLayer", "esri/layers/support/TileInfo", "esri/layers/WebTileLayer", "esri/symbols/LabelSymbol3D", "esri/Color", "esri/widgets/DirectLineMeasurement3D/DirectLineMeasurement3DViewModel", "esri/widgets/AreaMeasurement3D/AreaMeasurement3DViewModel",
 					"esri/config", "esri/Basemap", "esri/request", "esri/widgets/BasemapGallery", "esri/widgets/Expand", "esri/widgets/ScaleBar",
 					"esri/layers/TileLayer", "esri/layers/MapImageLayer", "esri/layers/FeatureLayer", "esri/widgets/LayerList", "esri/core/urlUtils",
 					"esri/tasks/QueryTask", "esri/tasks/support/Query", "esri/Graphic", "esri/layers/GraphicsLayer", "esri/geometry/Point", "esri/symbols/TextSymbol", "esri/layers/ElevationLayer",
@@ -30,7 +27,7 @@
 					"esri/geometry/geometryEngine", "esri/widgets/Legend", "esri/symbols/PictureMarkerSymbol", "esri/symbols/Font", "esri/tasks/IdentifyTask", "esri/tasks/support/IdentifyParameters", "dojo/_base/array",
 					"esri/widgets/Zoom", "esri/widgets/NavigationToggle", "esri/widgets/Compass"
 				],
-				function(Map, MapView,Locate, SceneView, BaseTileLayer, TileInfo, WebTileLayer, LabelSymbol3D, Color, DirectLineMeasurement3DViewModel, AreaMeasurement3DViewModel,
+				function(Map, MapView, SceneView, BaseTileLayer, TileInfo, WebTileLayer, LabelSymbol3D, Color, DirectLineMeasurement3DViewModel, AreaMeasurement3DViewModel,
 					esriConfig, Basemap, esriRequest, BasemapGallery, Expand, ScaleBar, TileLayer, MapImageLayer, FeatureLayer, LayerList, urlUtils,
 					QueryTask, Query, Graphic, GraphicsLayer, Point, TextSymbol, ElevationLayer, LabelClass,
 					WebMap, Draw, Polygon, Polyline, geometryEngine, Legend, PictureMarkerSymbol, Font, IdentifyTask, IdentifyParameters, arrayUtils,
@@ -44,7 +41,6 @@
 							[119.1, 50.0] // same as first vertex
 						]
 					];
-
 					var eErGuNaPolygon = new Polygon({
 						hasZ: false,
 						hasM: false,
@@ -53,7 +49,6 @@
 							wkid: 4326
 						}
 					});
-
 					var tdtImagerLayer = BaseTileLayer.createSubclass({
 						properties: {
 							urlTemplate: null
@@ -68,23 +63,18 @@
 									responseType: "image"
 								})
 								.then(function(response) {
-
 									var image = response.data;
 									var width = this.tileInfo.size[0];
 									var height = this.tileInfo.size[0];
-
 									var canvas = document.createElement("canvas");
 									var context = canvas.getContext("2d");
 									canvas.width = width;
 									canvas.height = height;
-
 									context.drawImage(image, 0, 0, width, height);
-
 									return canvas;
 								}.bind(this));
 						}
 					});
-
 					var tdtbizoZLayer = BaseTileLayer.createSubclass({
 						properties: {
 							urlTemplate: null
@@ -99,23 +89,18 @@
 									responseType: "image"
 								})
 								.then(function(response) {
-
 									var image = response.data;
 									var width = this.tileInfo.size[0];
 									var height = this.tileInfo.size[0];
-
 									var canvas = document.createElement("canvas");
 									var context = canvas.getContext("2d");
 									canvas.width = width;
 									canvas.height = height;
-
 									context.drawImage(image, 0, 0, width, height);
-
 									return canvas;
 								}.bind(this));
 						}
 					});
-
 					var tdtVectLayer = BaseTileLayer.createSubclass({
 						properties: {
 							urlTemplate: null
@@ -130,23 +115,18 @@
 									responseType: "image"
 								})
 								.then(function(response) {
-									
 									var image = response.data;
 									var width = this.tileInfo.size[0];
 									var height = this.tileInfo.size[0];
-
 									var canvas = document.createElement("canvas");
 									var context = canvas.getContext("2d");
 									canvas.width = width;
 									canvas.height = height;
-
 									context.drawImage(image, 0, 0, width, height);
-
 									return canvas;
 								}.bind(this));
 						}
 					});
-
 					var TintLayer = WebTileLayer.createSubclass({
 						properties: {
 							urlTemplate: null,
@@ -175,17 +155,12 @@
 								return canvas;
 							}.bind(this));
 						}
-
 					});
-
 					esriConfig.request.corsEnabledServers.push("t0.tianditu.cn", "t1.tianditu.cn", "t2.tianditu.cn", "t3.tianditu.cn", "t4.tianditu.cn", "t5.tianditu.cn", "t6.tianditu.cn", "t7.tianditu.cn");
-
 					//天地图
 					var ggVectorLayer = new tdtVectLayer();
-
 					//底图标注  
 					var ggLabelLayer = new tdtbizoZLayer();
-
 					//天地图
 					var ggSatelliteLayer = new tdtImagerLayer();
 					var imageBasemap2 = new Basemap({
@@ -200,12 +175,12 @@
 						id: "vectorBasemap",
 						thumbnailUrl: "img/streets.png"
 					});
-
+					
 					var map = new Map({
 						basemap: imageBasemap2,
 						ground: "world-elevation" // show elevation
 					});
-
+					
 					var view = new SceneView({
 						container: "viewDiv",
 						map: map,
@@ -218,36 +193,28 @@
 							tilt: 65 // perspective in degrees
 						}
 					});
-
+					
 					// 底图切换
 					var basemapGallery = new BasemapGallery({
 						view: view,
 						container: document.createElement("div"),
 						source: [vectorBasemap2, imageBasemap2]
 					});
-
+					
 					var bgExpand = new Expand({
 						view: view,
 						content: basemapGallery.container,
 						expandIconClass: "esri-icon-basemap"
 					});
-
+					
 					view.ui.add(bgExpand, "top-right");
-					
-					view.ui.remove('attribution');
-					
+					view.ui.remove("attribution");
 				});
 		</script>
-		
-		<script type="text/javascript" src="lib/jquery-3.4.1/jquery-3.4.1.min.js" ></script>
-		<script type="text/javascript" src="lib/layui-v2.5.4/lay/modules/layer.js" ></script>
-		
 	</head>
 
 	<body>
 		<div id="viewDiv"></div>
-		<div id="PositionInfo" style="display: none;z-index: 10">
-		</div>
 	</body>
 
 </html>
