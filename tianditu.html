@@ -26,10 +26,7 @@
 				line-height: 20px;
 			}
 			
-			#topbar {
-				background: #fff;
-				padding: 10px;
-			}
+			
 			
 			.action-button {
 				font-size: 16px;
@@ -248,7 +245,7 @@
 						expandIconClass: "esri-icon-basemap"
 					});
 
-					view.ui.add(bgExpand, "top-right");
+					
 					view.ui.remove("attribution");
 
 					// 显示鼠标经纬度
@@ -284,11 +281,14 @@
 						});
 					}
 
-					// 量算
+					// 长度,面积量算
 					var activeWidget = null;
 					// add the toolbar for the measurement widgets
-					document.getElementById("topbar").style.display = "inline";
-					view.ui.add("topbar", "top-right");
+					document.getElementById("topbar_measure_line").style.display = "inline";
+					view.ui.add("topbar_measure_line", "top-left");
+					
+					document.getElementById("topbar_measure_area").style.display = "inline";
+					view.ui.add("topbar_measure_area", "top-left");
 					document
 						.getElementById("distanceButton")
 						.addEventListener("click", function() {
@@ -299,7 +299,6 @@
 								setActiveButton(null);
 							}
 						});
-
 					document
 						.getElementById("areaButton")
 						.addEventListener("click", function() {
@@ -368,9 +367,11 @@
 			<span style="padding-left:10px;display:inline-block;">纬度:</span><span id="pointlat" style="display:inline-block;width:120px;">----------</span>
 		</div>
 		<!--量算工具栏-->
-		<div style="display: none;" id="topbar">
-			<button class="action-button esri-icon-measure-line" id="distanceButton" type="button" title="Measure distance between two points"></button>
-			<button class="action-button esri-icon-measure-area" id="areaButton" type="button" title="Measure area"></button>
+		<div style="display: none;background-color: #FFFFFF;" id="topbar_measure_line">
+			<button class="action-button esri-icon-measure-line" id="distanceButton" type="button" title="长度量算"></button>
+		</div>
+		<div style="display: none;background-color: #FFFFFF;" id="topbar_measure_area">
+		<button class="action-button esri-icon-measure-area" id="areaButton" type="button" title="面积量算"></button>
 		</div>
 	</body>
 
