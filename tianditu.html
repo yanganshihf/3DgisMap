@@ -186,35 +186,23 @@
 					//天地图
 					var ggSatelliteLayer = new tdtImagerLayer();
 					var imageBasemap2 = new Basemap({
-						baseLayers: [ggSatelliteLayer,ggLabelLayer],
+						baseLayers: [ggSatelliteLayer, ggLabelLayer],
 						title: "卫星影像",
 						id: "imageBasemap",
-						thumbnailUrl: "/YHSW/images/mappage/satellite.png"
+						thumbnailUrl: "img/satellite.png"
 					});
 					var vectorBasemap2 = new Basemap({
 						baseLayers: [ggVectorLayer, ggLabelLayer],
 						title: "行政区划",
 						id: "vectorBasemap",
-						thumbnailUrl: "/YHSW/images/mappage/streets.png"
-					});
-
-					// 底图切换
-					var basemapGallery = new BasemapGallery({
-						view: view,
-						container: document.createElement("div"),
-						source: [vectorBasemap2, imageBasemap2]
-					});
-
-					var bgExpand = new Expand({
-						view: view,
-						content: basemapGallery.container,
-						expandIconClass: "esri-icon-basemap"
+						thumbnailUrl: "img/streets.png"
 					});
 					
 					var map = new Map({
 						basemap: imageBasemap2,
 						ground: "world-elevation" // show elevation
 					});
+					
 					var view = new SceneView({
 						container: "viewDiv",
 						map: map,
@@ -227,10 +215,28 @@
 							tilt: 65 // perspective in degrees
 						}
 					});
+					
+					// 底图切换
+					var basemapGallery = new BasemapGallery({
+						view: view,
+						container: document.createElement("div"),
+						source: [vectorBasemap2, imageBasemap2]
+					});
+
+					
+					var bgExpand = new Expand({
+						view: view,
+						content: basemapGallery.container,
+						expandIconClass: "esri-icon-basemap"
+					});
+					
+					view.ui.add(bgExpand, "top-right");
 				});
 		</script>
 	</head>
+
 	<body>
 		<div id="viewDiv"></div>
 	</body>
+
 </html>
