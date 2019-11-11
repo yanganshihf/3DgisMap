@@ -26,7 +26,16 @@
 				line-height: 20px;
 			}
 			
-			
+			.nomal-button {
+				font-size: 16px;
+				background-color: transparent;
+				border: 1px solid #d3d3d3;
+				color: #6e6e6e;
+				height: 32px;
+				width: 32px;
+				text-align: center;
+				box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+			}
 			
 			.action-button {
 				font-size: 16px;
@@ -245,7 +254,6 @@
 						expandIconClass: "esri-icon-basemap"
 					});
 
-					
 					view.ui.remove("attribution");
 
 					// 显示鼠标经纬度
@@ -280,13 +288,16 @@
 
 						});
 					}
+					// 初始地图
+					document.getElementById("topbar_intit_map").style.display = "inline";
+					view.ui.add("topbar_intit_map", "top-left");
 
 					// 长度,面积量算
 					var activeWidget = null;
 					// add the toolbar for the measurement widgets
 					document.getElementById("topbar_measure_line").style.display = "inline";
 					view.ui.add("topbar_measure_line", "top-left");
-					
+
 					document.getElementById("topbar_measure_area").style.display = "inline";
 					view.ui.add("topbar_measure_area", "top-left");
 					document
@@ -355,6 +366,15 @@
 							selectedButton.classList.add("active");
 						}
 					}
+
+					// 刷新
+					document.getElementById("topbar_refresh").style.display = "inline";
+					view.ui.add("topbar_refresh", "top-left");
+					document
+						.getElementById("refresh")
+						.addEventListener("click", function() {
+							location.reload();
+						});
 				});
 		</script>
 	</head>
@@ -366,13 +386,23 @@
 			<span>经度:</span><span id="pointlongt" style="display:inline-block;width:120px;">----------</span>
 			<span style="padding-left:10px;display:inline-block;">纬度:</span><span id="pointlat" style="display:inline-block;width:120px;">----------</span>
 		</div>
-		<!--量算工具栏-->
+		<!--自定义工具栏-->
+		<!--初始地图-->
+		<div style="display: none;background-color: #FFFFFF;" id="topbar_intit_map">
+			<button class="nomal-button esri-icon-globe" id="intit_map" type="button" title="初始地图"></button>
+		</div>
+		<div style="display: none;background-color: #FFFFFF;" id="topbar_refresh">
+			<button class="nomal-button esri-icon-refresh" id="refresh" type="button" title="刷新"></button>
+		</div>
+		<!--长度量算-->
 		<div style="display: none;background-color: #FFFFFF;" id="topbar_measure_line">
 			<button class="action-button esri-icon-measure-line" id="distanceButton" type="button" title="长度量算"></button>
 		</div>
+		<!--面积量算-->
 		<div style="display: none;background-color: #FFFFFF;" id="topbar_measure_area">
-		<button class="action-button esri-icon-measure-area" id="areaButton" type="button" title="面积量算"></button>
+			<button class="action-button esri-icon-measure-area" id="areaButton" type="button" title="面积量算"></button>
 		</div>
+
 	</body>
 
 </html>
