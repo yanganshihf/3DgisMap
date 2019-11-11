@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
-		<title>ArcGIS API for JavaScript Hello World App</title>
+		<title>3dmap</title>
 		<style>
 			html,
 			body,
@@ -13,12 +13,25 @@
 				height: 100%;
 				width: 100%;
 			}
+			#PositionInfo {
+				position: absolute;
+				display: inline;
+				bottom: 0px;
+				color: white;
+				
+				height:20px;
+				width:100%;
+				box-shadow: none;
+				background: rgb(0,0,0,0.3);
+				line-height:20px;
+			}
 		</style>
 
 		<link rel="stylesheet" href="https://js.arcgis.com/4.13/esri/css/main.css">
 		<script src="https://js.arcgis.com/4.13/"></script>
-
+		<script type="text/javascript" src="js/coordTransfer.js" ></script>
 		<script>
+			
 			require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/layers/BaseTileLayer", "esri/layers/support/TileInfo", "esri/layers/WebTileLayer", "esri/symbols/LabelSymbol3D", "esri/Color", "esri/widgets/DirectLineMeasurement3D/DirectLineMeasurement3DViewModel", "esri/widgets/AreaMeasurement3D/AreaMeasurement3DViewModel",
 					"esri/config", "esri/Basemap", "esri/request", "esri/widgets/BasemapGallery", "esri/widgets/Expand", "esri/widgets/ScaleBar",
 					"esri/layers/TileLayer", "esri/layers/MapImageLayer", "esri/layers/FeatureLayer", "esri/widgets/LayerList", "esri/core/urlUtils",
@@ -188,9 +201,9 @@
 							position: { // observation point
 								x: 111.32800,
 								y: 38.01493,
-								z: 25000 // altitude in meters
+								z: 3500 // altitude in meters
 							},
-							tilt: 65 // perspective in degrees
+							tilt: 75 // perspective in degrees
 						}
 					});
 					
@@ -209,12 +222,45 @@
 					
 					view.ui.add(bgExpand, "top-right");
 					view.ui.remove("attribution");
+					
+					// 显示鼠标经纬度
+					document.getElementById("PositionInfo").style.display = "inline";
+					view.ui.add(bgExpand, "top-right");
+					view.on("pointer-move", pointerMoveEventHandler);
+					function pointerMoveEventHandler(event) {
+			        	
+			         	view.when(function(response){
+			         		var point = view.toMap({x: event.x, y: event.y});
+			         	   	if(point==null){
+			         	   		return;
+			         	   	}
+			                var lonlat = mercator2lonlat(point);                            
+			                var longitude=lonlat.x;
+			                var latitude=lonlat.y;
+			                var longtD = parseInt(longitude);
+			                var latD = parseInt(latitude);
+			                var longtM = parseInt((longitude - longtD) * 60);
+			                var latM = parseInt((latitude - latD) * 60);
+			                var longtS = (((longitude - longtD) * 60 - longtM) * 60).toFixed(2);
+			                var latS = (((latitude - latD) * 60 - latM) * 60).toFixed(2);
+			                var jingDu = longtD+'°'+longtM+'′'+longtS+'″';
+			                var weiDu = latD+'°'+latM+'′'+latS+'″';
+			                // console.log(jingDu+"------------"+weiDu);
+			                document.getElementById("pointlongt").innerHTML=jingDu;
+			                document.getElementById("pointlat").innerHTML=weiDu;
+			                
+			        	}); 
+					}
 				});
 		</script>
 	</head>
 
 	<body>
 		<div id="viewDiv"></div>
+		<div id="PositionInfo" style="display: none;z-index: 10">
+	 		<span>经度:</span><span id="pointlongt" style="display:inline-block;width:120px;">----------</span> 
+			<span style="padding-left:10px;display:inline-block;">纬度:</span><span id="pointlat" style="display:inline-block;width:120px;">----------</span>
+   		</div>
 	</body>
 
 </html>
