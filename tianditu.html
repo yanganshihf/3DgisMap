@@ -59,10 +59,11 @@
 				color: #e4e4e4;
 			}
 		</style>
-
+		
 		<link rel="stylesheet" href="https://js.arcgis.com/4.13/esri/css/main.css">
 		<script src="https://js.arcgis.com/4.13/"></script>
 		<script type="text/javascript" src="js/coordTransfer.js"></script>
+		<script type="text/javascript" src="lib/jquery-3.4.1/jquery-3.4.1.min.js" ></script>
 		<!--读取配置文件方法-->
 		<script>
 			var setting=null;
@@ -76,17 +77,16 @@
 					if(request.status == 200) { /*返回状态为200，即为数据获取成功*/
 						setting = JSON.parse(request.responseText);
 						for(var i = 0; i < setting.length; i++) {
-							console.log(setting[i].name);
+							// console.log(setting[i].name);
 						}
-						console.log(setting);
+						// console.log(setting);
 					}
 				}
 			}
 		</script>
-
 		<script>
 			getSetting();
-			var map, view;
+			var map, view, markLayer;
 			require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/layers/BaseTileLayer", "esri/layers/support/TileInfo", "esri/layers/WebTileLayer", "esri/symbols/LabelSymbol3D", "esri/Color", "esri/widgets/DirectLineMeasurement3D/DirectLineMeasurement3DViewModel", "esri/widgets/AreaMeasurement3D/AreaMeasurement3DViewModel",
 					"esri/config", "esri/Basemap", "esri/request", "esri/widgets/BasemapGallery", "esri/widgets/Expand", "esri/widgets/ScaleBar",
 					"esri/layers/TileLayer", "esri/layers/MapImageLayer", "esri/layers/FeatureLayer", "esri/widgets/LayerList", "esri/core/urlUtils",
@@ -294,6 +294,7 @@
 								x: event.x,
 								y: event.y
 							});
+							// console.log(point);
 							if(point == null) {
 								return;
 							}
@@ -308,12 +309,13 @@
 							var latS = (((latitude - latD) * 60 - latM) * 60).toFixed(2);
 							var jingDu = longtD + '°' + longtM + '′' + longtS + '″';
 							var weiDu = latD + '°' + latM + '′' + latS + '″';
-							// console.log(jingDu+"------------"+weiDu);
+							// // console.log(jingDu+"------------"+weiDu);
 							document.getElementById("pointlongt").innerHTML = jingDu;
 							document.getElementById("pointlat").innerHTML = weiDu;
 
 						});
 					}
+					
 					// 初始地图
 					document.getElementById("topbar_intit_map").style.display = "inline";
 					view.ui.add("topbar_intit_map", "top-left");
@@ -406,6 +408,38 @@
 						.addEventListener("click", function() {
 							location.reload();
 						});
+					var lineLayer = new MapImageLayer(
+					{
+						url : setting.xingzhengjie,
+						title : "行政界",
+						sublayers : [ {
+							id : 1,
+							title : "村界"
+						}, {
+							id : 0,
+							title : "乡界"
+						} ]
+					});
+					map.add(lineLayer);
+					
+					// 标记飞行点
+					markLayer = new GraphicsLayer();
+					map.add(markLayer);
+					
+					// 获取参数
+					$.ajax({
+					    url:"json/airCraft.json",    //请求的url地址
+					    dataType:"json",   //返回格式为json
+					    async:true,//请求是否异步，默认为异步，这也是ajax重要特性
+					    type:"GET",
+					    success:function(req){
+					        //请求成功时处理
+					        $.each(req, function(i,value) {
+					        	// debugger;
+					        });
+					    }
+					});
+					
 				});
 		</script>
 	</head>

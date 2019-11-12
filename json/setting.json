@@ -6,5 +6,6 @@
 			"z":3000
 		},
 		"tilt":70
-	}
+	},
+	"xingzhengjie":"http://60.205.206.180:6080/arcgis/rest/services/QUANGUOXZJ/MapServer"
 }

@@ -1,0 +1,18 @@
+[
+	{
+		"messionName": "日常航拍001",
+		"messionType": "循环任务",
+		"manager": "李四",
+		"messionDate": "2019-11-11",
+		"power": 0.82,
+		"position": [111.332801,38.039253]
+	},
+	{
+		"messionName": "航拍002",
+		"messionType": "单次任务",
+		"manager": "张三",
+		"messionDate": "2019-11-12",
+		"power": 0.65,
+		"position": [111.412801,38.03863]
+	}
+]
