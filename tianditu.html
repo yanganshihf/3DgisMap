@@ -446,6 +446,15 @@
 						xoffset: 0,
 						yoffset: 8
 					};
+					var markerSymbol_chosed = {
+						type: "picture-marker", // autocasts as new
+						// PictureMarkerSymbol()
+						url: "img/aircraft_chosed.png",
+						width: 30,
+						height: 25,
+						xoffset: 0,
+						yoffset: 8
+					};
 					// 获取参数
 					$.ajax({
 						url: "json/airCraft.json", //请求的url地址
@@ -457,7 +466,7 @@
 							$.each(req, function(i, value) {
 								// 利用经纬度信息创建巡护人员坐标点
 								var pt = new Point(value.position[0], value.position[1]);
-
+								
 								// 利用经纬度及符号画出巡护人员点
 								var graphic = new Graphic({
 									geometry: pt,
@@ -483,6 +492,16 @@
 					view.on("click", function(evt) {
 						// 获取点击图形
 						view.hitTest(evt).then(function(response) {
+							// 选中高亮
+							var graphicArray = markLayer.graphics.items;
+							$.each(graphicArray, function(i, value) {
+								if(value == response.results[0].graphic){
+									value.symbol = markerSymbol_chosed;
+								}else{
+									value.symbol = markerSymbol;
+								}
+							});
+							
 							var results = response.results;
 							var graphic = response.results[0].graphic;
 							
