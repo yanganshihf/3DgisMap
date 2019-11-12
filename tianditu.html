@@ -448,13 +448,21 @@
 					        $.each(req, function(i,value) {
 					        	// 利用经纬度信息创建巡护人员坐标点
 								var pt = new Point(value.position[0], value.position[1]);
-					        	// debugger;
+					        	
 					        	// 利用经纬度及符号画出巡护人员点
 								var graphic = new Graphic({
 									geometry : pt,
 									symbol : markerSymbol
 								});
-								
+								debugger;
+								// 设置点图形的属性信息
+								graphic.attributes = {
+									"manager" : value.manager,
+									"messionDate" : value.messionDate,
+									"messionName" : value.messionName,
+									"messionType" : value.messionType,
+									"power" : value.power
+								};
 								markLayer.add(graphic);
 					        });
 					    }
