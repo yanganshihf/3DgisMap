@@ -507,9 +507,12 @@
 		            	view.ui.add("resultDiv", "top-right");
 			        }
 				});
+				
+				
+			
 		</script>
 	</head>
-
+	
 	<body>
 		<link rel="stylesheet" href="lib/layui-v2.5.4/css/layui.css" />
 		<script type="text/javascript" src="lib/layui-v2.5.4/layui.js" ></script>
@@ -538,18 +541,24 @@
 		
 		<!--查询结果显示页面-->
 		<div id="resultDiv" class="esri-widget">
+	      	<div>
+	      		<p>
+	      			<strong>无人机信息</strong>
+	      			<i onclick="closeResultDiv()" class="layui-icon layui-icon-close" style="float: right;"></i>
+	      			<script>
+	      				function closeResultDiv(){
+	      					document.getElementById("resultDiv").style.display = "none";
+	      				}
+	      			</script>
+	      		</p>
+	      	</div>
 	      	<table class="layui-table">
 			  <colgroup>
 			    <col width="150">
-			    <col width="200">
+			    <col width="150">
 			    <col>
 			  </colgroup>
-			  <thead>
-			    <tr>
-			      <th>无人机信息</th>
-			      <th></th>
-			    </tr> 
-			  </thead>
+			  
 			  <tbody>
 			     <tr>
 			      <th>任务名称</th>
@@ -579,5 +588,4 @@
 			</table>
     	</div>
 	</body>
-
 </html>
