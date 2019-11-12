@@ -65,24 +65,27 @@
 		<script type="text/javascript" src="js/coordTransfer.js"></script>
 		<!--读取配置文件方法-->
 		<script>
-			window.onload = function() {
+			var setting=null;
+			//window.onload = function() {
+			function getSetting(){
 				var url = "json/setting.json" /*json文件url，本地的就写本地的位置，如果是服务器的就写服务器的路径*/
 				var request = new XMLHttpRequest();
 				request.open("get", url); /*设置请求方法与路径*/
 				request.send(null); /*不发送数据到服务器*/
 				request.onload = function() { /*XHR对象获取到返回信息后执行*/
 					if(request.status == 200) { /*返回状态为200，即为数据获取成功*/
-						var json = JSON.parse(request.responseText);
-						for(var i = 0; i < json.length; i++) {
-							console.log(json[i].name);
+						setting = JSON.parse(request.responseText);
+						for(var i = 0; i < setting.length; i++) {
+							console.log(setting[i].name);
 						}
-						console.log(json.map_view);
+						console.log(setting);
 					}
 				}
 			}
 		</script>
 
 		<script>
+			getSetting();
 			var map, view;
 			require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/layers/BaseTileLayer", "esri/layers/support/TileInfo", "esri/layers/WebTileLayer", "esri/symbols/LabelSymbol3D", "esri/Color", "esri/widgets/DirectLineMeasurement3D/DirectLineMeasurement3DViewModel", "esri/widgets/AreaMeasurement3D/AreaMeasurement3DViewModel",
 					"esri/config", "esri/Basemap", "esri/request", "esri/widgets/BasemapGallery", "esri/widgets/Expand", "esri/widgets/ScaleBar",
@@ -251,12 +254,13 @@
 					// 初始地图视角
 					var cam = new Camera({
 						position: { // observation point
-							x: 111.32800,
-							y: 38.01493,
-							z: 3000 // altitude in meters
+							x: setting.map_view.camera.x,
+							y: setting.map_view.camera.y,
+							z: setting.map_view.camera.z // altitude in meters
 						},
-						tilt: 70 // perspective in degrees
+						tilt: setting.map_view.tilt // perspective in degrees
 					});
+					
 					view = new SceneView({
 						container: "viewDiv",
 						camera: cam,
