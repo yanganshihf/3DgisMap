@@ -58,17 +58,27 @@
 				background: #0079c1;
 				color: #e4e4e4;
 			}
+			
+			#resultDiv {
+		        min-width: 300px;
+		        font-size: 14px;
+		        padding: 10px;
+		        display: none;
+		        overflow-y: auto;
+		        overflow-x: hidden;
+		      }
 		</style>
-		
+
 		<link rel="stylesheet" href="https://js.arcgis.com/4.13/esri/css/main.css">
 		<script src="https://js.arcgis.com/4.13/"></script>
 		<script type="text/javascript" src="js/coordTransfer.js"></script>
-		<script type="text/javascript" src="lib/jquery-3.4.1/jquery-3.4.1.min.js" ></script>
+		<script type="text/javascript" src="lib/jquery-3.4.1/jquery-3.4.1.min.js"></script>
+		
 		<!--读取配置文件方法-->
 		<script>
-			var setting=null;
+			var setting = null;
 			//window.onload = function() {
-			function getSetting(){
+			function getSetting() {
 				var url = "json/setting.json" /*json文件url，本地的就写本地的位置，如果是服务器的就写服务器的路径*/
 				var request = new XMLHttpRequest();
 				request.open("get", url); /*设置请求方法与路径*/
@@ -260,7 +270,7 @@
 						},
 						tilt: setting.map_view.tilt // perspective in degrees
 					});
-					
+
 					view = new SceneView({
 						container: "viewDiv",
 						camera: cam,
@@ -315,7 +325,7 @@
 
 						});
 					}
-					
+
 					// 初始地图
 					document.getElementById("topbar_intit_map").style.display = "inline";
 					view.ui.add("topbar_intit_map", "top-left");
@@ -408,71 +418,101 @@
 						.addEventListener("click", function() {
 							location.reload();
 						});
-						
+
 					// 加入行政界线
-					var lineLayer = new MapImageLayer(
-					{
-						url : setting.xingzhengjie,
-						title : "行政界",
-						sublayers : [ {
-							id : 1,
-							title : "村界"
+					var lineLayer = new MapImageLayer({
+						url: setting.xingzhengjie,
+						title: "行政界",
+						sublayers: [{
+							id: 1,
+							title: "村界"
 						}, {
-							id : 0,
-							title : "乡界"
-						} ]
+							id: 0,
+							title: "乡界"
+						}]
 					});
 					map.add(lineLayer);
-					
+
 					// 标记飞行点
 					markLayer = new GraphicsLayer();
 					map.add(markLayer);
-					
+
 					var markerSymbol = {
-						type : "picture-marker", // autocasts as new
+						type: "picture-marker", // autocasts as new
 						// PictureMarkerSymbol()
-						url : "img/aircraft.png",
-						width : 30,
-						height : 25,
-						xoffset : 0,
-						yoffset : 8
+						url: "img/aircraft.png",
+						width: 30,
+						height: 25,
+						xoffset: 0,
+						yoffset: 8
 					};
 					// 获取参数
 					$.ajax({
-					    url:"json/airCraft.json",    //请求的url地址
-					    dataType:"json",   //返回格式为json
-					    async:true,//请求是否异步，默认为异步，这也是ajax重要特性
-					    type:"GET",
-					    success:function(req){
-					        //请求成功时处理
-					        $.each(req, function(i,value) {
-					        	// 利用经纬度信息创建巡护人员坐标点
+						url: "json/airCraft.json", //请求的url地址
+						dataType: "json", //返回格式为json
+						async: true, //请求是否异步，默认为异步，这也是ajax重要特性
+						type: "GET",
+						success: function(req) {
+							//请求成功时处理
+							$.each(req, function(i, value) {
+								// 利用经纬度信息创建巡护人员坐标点
 								var pt = new Point(value.position[0], value.position[1]);
-					        	
-					        	// 利用经纬度及符号画出巡护人员点
+
+								// 利用经纬度及符号画出巡护人员点
 								var graphic = new Graphic({
-									geometry : pt,
-									symbol : markerSymbol
+									geometry: pt,
+									symbol: markerSymbol
 								});
-								debugger;
+
 								// 设置点图形的属性信息
 								graphic.attributes = {
-									"manager" : value.manager,
-									"messionDate" : value.messionDate,
-									"messionName" : value.messionName,
-									"messionType" : value.messionType,
-									"power" : value.power
+									"graphicFlag" : "1",
+									"manager": value.manager,
+									"messionDate": value.messionDate,
+									"messionName": value.messionName,
+									"messionType": value.messionType,
+									"planeType": value.planeType,
+									"power": value.power
 								};
 								markLayer.add(graphic);
-					        });
-					    }
+							});
+						}
 					});
+
+					// 地图单击事件
+					view.on("click", function(evt) {
+						// 获取点击图形
+						view.hitTest(evt).then(function(response) {
+							var results = response.results;
+							var graphic = response.results[0].graphic;
+							
+							// 如果是标记飞行点
+							if(graphic.attributes.graphicFlag == "1") {     //如果点击的是graphic
+								alertDeivceInfo(graphic);
+							}
+						})
+					})
 					
+					function alertDeivceInfo(graphic) {
+						// 设置属性
+						var attrs = graphic.attributes;
+		            	$("#manager").html(attrs.manager);
+		            	$("#messionDate").html(attrs.messionDate);
+		            	$("#messionName").html(attrs.messionName);
+		            	$("#messionType").html(attrs.messionType);
+		            	$("#planeType").html(attrs.planeType);
+		            	$("#power").html(attrs.power);
+		            	
+		            	document.getElementById("resultDiv").style.display = "inline";
+		            	view.ui.add("resultDiv", "top-right");
+			        }
 				});
 		</script>
 	</head>
 
 	<body>
+		<link rel="stylesheet" href="lib/layui-v2.5.4/css/layui.css" />
+		<script type="text/javascript" src="lib/layui-v2.5.4/layui.js" ></script>
 		<div id="viewDiv"></div>
 		<!--鼠标经纬度-->
 		<div id="PositionInfo" style="display: none;z-index: 10">
@@ -495,7 +535,49 @@
 		<div style="display: none;background-color: #FFFFFF;" id="topbar_measure_area">
 			<button class="action-button esri-icon-measure-area" id="areaButton" type="button" title="面积量算"></button>
 		</div>
-
+		
+		<!--查询结果显示页面-->
+		<div id="resultDiv" class="esri-widget">
+	      	<table class="layui-table">
+			  <colgroup>
+			    <col width="150">
+			    <col width="200">
+			    <col>
+			  </colgroup>
+			  <thead>
+			    <tr>
+			      <th>无人机信息</th>
+			      <th></th>
+			    </tr> 
+			  </thead>
+			  <tbody>
+			     <tr>
+			      <th>任务名称</th>
+			      <th id="messionName"></th>
+			    </tr> 
+			     <tr>
+			      <th>任务类型</th>
+			      <th id="messionType"></th>
+			    </tr>
+			     <tr>
+			      <th>执行人</th>
+			      <th id="manager"></th>
+			    </tr> 
+			    <tr>
+			      <th>执行时间</th>
+			      <th id="messionDate"></th>
+			    </tr>
+			    <tr>
+			      <th>飞机型号</th>
+			      <th id="planeType"></th>
+			    </tr>
+			    <tr>
+			      <th>飞机电量</th>
+			      <th id="power"></th>
+			    </tr>
+			  </tbody>
+			</table>
+    	</div>
 	</body>
 
 </html>
