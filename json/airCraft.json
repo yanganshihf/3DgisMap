@@ -9,6 +9,15 @@
 		"position": [111.332801,38.039253]
 	},
 	{
+		"messionName": "航拍001",
+		"messionType": "单次任务",
+		"planeType": "大疆",
+		"manager": "王武",
+		"messionDate": "2019-11-13",
+		"power": 0.72,
+		"position": [111.302801,38.055253]
+	},
+	{
 		"messionName": "航拍002",
 		"messionType": "单次任务",
 		"planeType": "御2",
