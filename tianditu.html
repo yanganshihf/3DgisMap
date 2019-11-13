@@ -552,21 +552,22 @@
 							var results = response.results;
 							var graphic = response.results[0].graphic;
 
-							markLine(graphic.attributes.line);
+							
 
 							// 如果是标记飞行点
 							if(graphic.attributes.graphicFlag == "1") {     //如果点击的是graphic
 								alertDeivceInfo(graphic);
+								markLine(graphic);
 							}
 						})
 					})
 
 					// 标记折线
-					function markLine(lineArray) {
-						debugger;
+					function markLine(graphic) {
+						
 						var polyline = {
 							type: "polyline", // autocasts as new Polyline()
-							paths: lineArray
+							paths: graphic.attributes.line
 						};
 
 						var lineSymbol = {
@@ -577,10 +578,19 @@
 						
 						var polylineGraphic = new Graphic({
 						    geometry: polyline, // Add the geometry created in step 4
-						    symbol: lineSymbol
-						  });
-						
+						    symbol: lineSymbol,
+						    attributes:{
+						    	graphicFlag : "2"
+						    }
+						});
+						var graphicArray = markLayer.graphics.items;
+						$.each(graphicArray, function(i,value) {
+							if(value.attributes.graphicFlag == "2"){
+								markLayer.remove(value);
+							}
+						});
 						markLayer.add(polylineGraphic);
+						
 					}
 
 					function alertDeivceInfo(graphic) {
