@@ -19,14 +19,13 @@ function init() {
 
 function mark_point(longt, lat, imgUrl) {
 	init();
-	require(["esri/Map", "esri/Camera", "esri/views/SceneView", "esri/geometry/Point", "esri/Graphic", "esri/layers/GraphicsLayer", "esri/symbols/PictureMarkerSymbol", "esri/geometry/Point"], function(
+	require(["esri/Map", "esri/Camera", "esri/views/SceneView", "esri/geometry/Point", "esri/Graphic", "esri/layers/GraphicsLayer", "esri/symbols/PictureMarkerSymbol"], function(
 		Map, Camera,
 		SceneView,
 		Point,
 		Graphic,
 		GraphicsLayer,
-		PictureMarkerSymbol,
-		Point
+		PictureMarkerSymbol
 	) {
 		// 自定义标记图标
 		var markerSymbol = {
@@ -38,7 +37,7 @@ function mark_point(longt, lat, imgUrl) {
 			xoffset: 0,
 			yoffset: 8
 		};
-
+		
 		// 利用经纬度信息创建巡护人员坐标点
 		var pt = new Point(longt, lat);
 
@@ -54,3 +53,4 @@ function mark_point(longt, lat, imgUrl) {
 		view.goTo(pt);
 	});
 }
+

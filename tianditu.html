@@ -686,6 +686,8 @@
 		<script type="text/javascript" src="lib/layui-v2.5.4/lay/modules/form.js"></script>
 		<!--选项卡模块-->
 		<script type="text/javascript" src="lib/layui-v2.5.4/lay/modules/element.js"></script>
+		<script type="text/javascript" src="ckplayer/ckplayer.js" ></script>
+		
 		<div id="viewDiv"></div>
 		<!--鼠标经纬度-->
 		<div id="PositionInfo" style="display: none;z-index: 10">
@@ -718,7 +720,7 @@
 		<div style="display: none;background-color: #FFFFFF;" id="topbar_locate">
 			<button class="nomal-button esri-icon-map-pin" id="locate" type="button" title="坐标定位"></button>
 		</div>
-
+		
 		<!--查询结果显示页面-->
 		<div id="resultDiv" class="esri-widget">
 			<div>
@@ -777,10 +779,22 @@
 								<div id="Bar_jindu"></div>
 							</div>
 						</th>
+					</tr>
+					<tr>
+						<div id="video" style="width:450px;height:280px;"></div>
+					</tr>
 				</tbody>
 			</table>
 		</div>
-
+		<script>
+			var videoObject = {
+				container: '#video', //“#”代表容器的ID，“.”或“”代表容器的class
+				variable: 'player', //该属性必需设置，值等于下面的new chplayer()的对象
+				flashplayer: true, //如果强制使用flashplayer则设置成true
+				video: '../video/example.flv' //视频地址
+			};
+			var player = new ckplayer(videoObject);
+		</script>
 		<!--坐标定位输入-->
 		<script src="js/markLocate.js"></script>
 		<div id="locateDiv" class="esri-widget">
