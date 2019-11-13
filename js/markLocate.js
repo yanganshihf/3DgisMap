@@ -11,6 +11,8 @@ function init() {
 		PictureMarkerSymbol
 	) {
 		mark_locate = new GraphicsLayer();
+		mark_locate.title = "定位图层";
+		mark_locate.listMode = "hide";
 		map.add(mark_locate);
 	});
 }

@@ -458,6 +458,7 @@
 
 					// 标记飞行点
 					markLayer = new GraphicsLayer();
+					markLayer.title = "标记图层";
 					map.add(markLayer);
 
 					var markerSymbol = {
@@ -548,6 +549,20 @@
 						document.getElementById("resultDiv").style.display = "inline";
 						view.ui.add("resultDiv", "top-right");
 					}
+
+					// 图层列表
+					var layerList = new LayerList({
+						view: view,
+						container: document.createElement("div")
+					});
+					// 图层列表展开
+					var lyrLstExpand = new Expand({
+						view: view,
+						content: layerList.container,
+						expandIconClass: "esri-icon-layer-list",
+						expandTooltip: "图层列表"
+					});
+					view.ui.add(lyrLstExpand, "top-right");
 				});
 		</script>
 
@@ -706,11 +721,11 @@
 									<input type="number" min="108" max="135" step="1" name="longt_du" required lay-verify="required" placeholder="请输入度" autocomplete="off" class="layui-input">
 								</div>
 								<div class="layui-input-block">
-									<input type="number" min="0" value=0 max="59" step="1" name="longt_fen"  placeholder="请输入分" autocomplete="off" class="layui-input">
+									<input type="number" min="0" value=0 max="59" step="1" name="longt_fen" placeholder="请输入分" autocomplete="off" class="layui-input">
 								</div>
-							
+
 								<div class="layui-input-block">
-									<input type="number" min="0" value=0 max="59" step="0.00001" name="longt_miao"  placeholder="请输入秒" autocomplete="off" class="layui-input">
+									<input type="number" min="0" value=0 max="59" step="0.00001" name="longt_miao" placeholder="请输入秒" autocomplete="off" class="layui-input">
 								</div>
 							</div>
 							<div class="layui-form-item" pane>
@@ -719,11 +734,11 @@
 									<input type="number" min="34" max="53" step="1" name="lat_du" required lay-verify="required" placeholder="请输入度" autocomplete="off" class="layui-input">
 								</div>
 								<div class="layui-input-block">
-									<input type="number" value=0 min="0" max="59" step="1" name="lat_fen"  placeholder="请输入分" autocomplete="off" class="layui-input">
+									<input type="number" value=0 min="0" max="59" step="1" name="lat_fen" placeholder="请输入分" autocomplete="off" class="layui-input">
 								</div>
-							
+
 								<div class="layui-input-block">
-									<input type="number" value=0 min="0" max="59" step="0.00001" name="lat_miao"  placeholder="请输入秒" autocomplete="off" class="layui-input">
+									<input type="number" value=0 min="0" max="59" step="0.00001" name="lat_miao" placeholder="请输入秒" autocomplete="off" class="layui-input">
 								</div>
 							</div>
 							<div class="layui-form-item">
@@ -739,16 +754,16 @@
 								var form = layui.form;
 								//监听提交
 								form.on('submit(formDemo)', function(data) {
-									var longt = DegreeConvertBack(data.field.longt_du,data.field.longt_fen,data.field.longt_miao);
-									var lat = DegreeConvertBack(data.field.lat_du,data.field.lat_fen,data.field.lat_miao);
+									var longt = DegreeConvertBack(data.field.longt_du, data.field.longt_fen, data.field.longt_miao);
+									var lat = DegreeConvertBack(data.field.lat_du, data.field.lat_fen, data.field.lat_miao);
 									// console.log(longt+" , "+lat);
 									mark_point(longt, lat, "img/locate.png")
 									return false;
 								});
 							});
 							// 经纬度转换
-							function DegreeConvertBack(du,fen,miao){
-								var numStr = Math.abs(du) + Math.abs(fen)/60 + Math.abs(miao)/3600;
+							function DegreeConvertBack(du, fen, miao) {
+								var numStr = Math.abs(du) + Math.abs(fen) / 60 + Math.abs(miao) / 3600;
 								var num = numStr.toFixed(5);
 								// debugger;
 								return num;
