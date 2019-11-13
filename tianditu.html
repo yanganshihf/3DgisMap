@@ -105,7 +105,9 @@
 			}
 		</script>
 		<script>
+			// 获取配置文件
 			getSetting();
+			// 
 			var map, view, markLayer;
 			require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/layers/BaseTileLayer", "esri/layers/support/TileInfo", "esri/layers/WebTileLayer", "esri/symbols/LabelSymbol3D", "esri/Color", "esri/widgets/DirectLineMeasurement3D/DirectLineMeasurement3DViewModel", "esri/widgets/AreaMeasurement3D/AreaMeasurement3DViewModel",
 					"esri/config", "esri/Basemap", "esri/request", "esri/widgets/BasemapGallery", "esri/widgets/Expand", "esri/widgets/ScaleBar",
@@ -638,6 +640,7 @@
 		</div>
 
 		<!--坐标定位输入-->
+		<script src="js/markLocate.js"></script>
 		<div id="locateDiv" class="esri-widget">
 			<div style="margin-bottom: 25px;">
 				<p>
@@ -678,6 +681,8 @@
 					  //监听提交
 					  form.on('submit(formDemo)', function(data){
 					    console.log(JSON.stringify(data.field));
+					    
+					    mark_point(data.field.longt,data.field.lat,"img/locate.png")
 					    return false;
 					  });
 					});
