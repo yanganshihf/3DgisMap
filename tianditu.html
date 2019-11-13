@@ -668,18 +668,18 @@
 							<div class="layui-form-item" pane>
 								<label class="layui-form-label">经度</label>
 								<div class="layui-input-block">
-									<input type="number" min="73" max="135" step="0.00001" name="longt" required lay-verify="required" placeholder="请输入经度" autocomplete="off" class="layui-input">
+									<input type="number" min="108" max="135" step="0.00001" name="longt" required lay-verify="required" placeholder="请输入经度" autocomplete="off" class="layui-input">
 								</div>
 							</div>
 							<div class="layui-form-item" pane>
 								<label class="layui-form-label">纬度</label>
 								<div class="layui-input-block">
-									<input type="number" min="4" max="53" step="0.00001" name="lat" required lay-verify="required" placeholder="请输入纬度" autocomplete="off" class="layui-input">
+									<input type="number" min="34" max="53" step="0.00001" name="lat" required lay-verify="required" placeholder="请输入纬度" autocomplete="off" class="layui-input">
 								</div>
 							</div>
 							<div class="layui-form-item">
 								<div class="layui-input-block" style="margin-left: 65px;">
-									<button class="layui-btn" lay-submit lay-filter="formDemo">确定</button>
+									<button class="layui-btn" lay-submit lay-filter="formDemo0">确定</button>
 									<button type="reset" class="layui-btn layui-btn-primary">重置</button>
 								</div>
 							</div>
@@ -689,9 +689,9 @@
 							layui.use('form', function() {
 								var form = layui.form;
 								//监听提交
-								form.on('submit(formDemo)', function(data) {
+								form.on('submit(formDemo0)', function(data) {
 									console.log(JSON.stringify(data.field));
-
+									// 坐标定位方法
 									mark_point(data.field.longt, data.field.lat, "img/locate.png")
 									return false;
 								});
@@ -703,9 +703,8 @@
 							<div class="layui-form-item" pane>
 								<label class="layui-form-label">经度</label>
 								<div class="layui-input-block">
-									<input type="number" min="73" max="135" step="1" name="longt_du" required lay-verify="required" placeholder="请输入度" autocomplete="off" class="layui-input">
+									<input type="number" min="108" max="135" step="1" name="longt_du" required lay-verify="required" placeholder="请输入度" autocomplete="off" class="layui-input">
 								</div>
-								
 								<div class="layui-input-block">
 									<input type="number" min="0" value=0 max="59" step="1" name="longt_fen"  placeholder="请输入分" autocomplete="off" class="layui-input">
 								</div>
@@ -717,7 +716,7 @@
 							<div class="layui-form-item" pane>
 								<label class="layui-form-label">纬度</label>
 								<div class="layui-input-block">
-									<input type="number" min="4" max="53" step="1" name="lat_du" required lay-verify="required" placeholder="请输入度" autocomplete="off" class="layui-input">
+									<input type="number" min="34" max="53" step="1" name="lat_du" required lay-verify="required" placeholder="请输入度" autocomplete="off" class="layui-input">
 								</div>
 								<div class="layui-input-block">
 									<input type="number" value=0 min="0" max="59" step="1" name="lat_fen"  placeholder="请输入分" autocomplete="off" class="layui-input">
