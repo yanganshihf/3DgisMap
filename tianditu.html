@@ -556,7 +556,10 @@
 	<body>
 		<link rel="stylesheet" href="lib/layui-v2.5.4/css/layui.css" />
 		<script type="text/javascript" src="lib/layui-v2.5.4/layui.js"></script>
+		<!--表单模块-->
 		<script type="text/javascript" src="lib/layui-v2.5.4/lay/modules/form.js"></script>
+		<!--选项卡模块-->
+		<script type="text/javascript" src="lib/layui-v2.5.4/lay/modules/element.js"></script>
 		<div id="viewDiv"></div>
 		<!--鼠标经纬度-->
 		<div id="PositionInfo" style="display: none;z-index: 10">
@@ -653,41 +656,109 @@
 					</script>
 				</p>
 			</div>
-			<div>
-				<form class="layui-form layui-form-pane" action="">
-					<div class="layui-form-item" pane>
-						<label class="layui-form-label">经度</label>
-						<div class="layui-input-block">
-							<input type="number" min="73" max="135" step="0.00001" name="longt" required lay-verify="required" placeholder="请输入经度" autocomplete="off" class="layui-input">
-						</div>
+			<div class="layui-tab" lay-filter="demo">
+				<ul class="layui-tab-title">
+					<li class="layui-this">坐标</li>
+					<li>度分秒</li>
+
+				</ul>
+				<div class="layui-tab-content" style="padding-bottom: 0px;">
+					<div class="layui-tab-item layui-show">
+						<form class="layui-form layui-form-pane" action="">
+							<div class="layui-form-item" pane>
+								<label class="layui-form-label">经度</label>
+								<div class="layui-input-block">
+									<input type="number" min="73" max="135" step="0.00001" name="longt" required lay-verify="required" placeholder="请输入经度" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-form-item" pane>
+								<label class="layui-form-label">纬度</label>
+								<div class="layui-input-block">
+									<input type="number" min="4" max="53" step="0.00001" name="lat" required lay-verify="required" placeholder="请输入纬度" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<div class="layui-input-block" style="margin-left: 65px;">
+									<button class="layui-btn" lay-submit lay-filter="formDemo">确定</button>
+									<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+								</div>
+							</div>
+						</form>
+						<script>
+							//Demo
+							layui.use('form', function() {
+								var form = layui.form;
+								//监听提交
+								form.on('submit(formDemo)', function(data) {
+									console.log(JSON.stringify(data.field));
+
+									mark_point(data.field.longt, data.field.lat, "img/locate.png")
+									return false;
+								});
+							});
+						</script>
 					</div>
-					<div class="layui-form-item" pane>
-						<label class="layui-form-label">纬度</label>
-						<div class="layui-input-block">
-							<input type="number" min="4" max="53" step="0.00001" name="lat" required lay-verify="required" placeholder="请输入纬度" autocomplete="off" class="layui-input">
-						</div>
+					<div class="layui-tab-item">
+						<form class="layui-form layui-form-pane" action="">
+							<div class="layui-form-item" pane>
+								<label class="layui-form-label">经度</label>
+								<div class="layui-input-block">
+									<input type="number" min="73" max="135" step="1" name="longt_du" required lay-verify="required" placeholder="请输入度" autocomplete="off" class="layui-input">
+								</div>
+								
+								<div class="layui-input-block">
+									<input type="number" min="0" value=0 max="59" step="1" name="longt_fen"  placeholder="请输入分" autocomplete="off" class="layui-input">
+								</div>
+							
+								<div class="layui-input-block">
+									<input type="number" min="0" value=0 max="59" step="0.00001" name="longt_miao"  placeholder="请输入秒" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-form-item" pane>
+								<label class="layui-form-label">纬度</label>
+								<div class="layui-input-block">
+									<input type="number" min="4" max="53" step="1" name="lat_du" required lay-verify="required" placeholder="请输入度" autocomplete="off" class="layui-input">
+								</div>
+								<div class="layui-input-block">
+									<input type="number" value=0 min="0" max="59" step="1" name="lat_fen"  placeholder="请输入分" autocomplete="off" class="layui-input">
+								</div>
+							
+								<div class="layui-input-block">
+									<input type="number" value=0 min="0" max="59" step="0.00001" name="lat_miao"  placeholder="请输入秒" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<div class="layui-input-block" style="margin-left: 65px;">
+									<button class="layui-btn" lay-submit lay-filter="formDemo">确定</button>
+									<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+								</div>
+							</div>
+						</form>
+						<script>
+							//Demo
+							layui.use('form', function() {
+								var form = layui.form;
+								//监听提交
+								form.on('submit(formDemo)', function(data) {
+									var longt = DegreeConvertBack(data.field.longt_du,data.field.longt_fen,data.field.longt_miao);
+									var lat = DegreeConvertBack(data.field.lat_du,data.field.lat_fen,data.field.lat_miao);
+									// console.log(longt+" , "+lat);
+									mark_point(longt, lat, "img/locate.png")
+									return false;
+								});
+							});
+							// 经纬度转换
+							function DegreeConvertBack(du,fen,miao){
+								var numStr = Math.abs(du) + Math.abs(fen)/60 + Math.abs(miao)/3600;
+								var num = numStr.toFixed(5);
+								// debugger;
+								return num;
+							}
+						</script>
 					</div>
-					<div class="layui-form-item">
-						<div class="layui-input-block" style="margin-left: 75px;">
-							<button class="layui-btn" lay-submit lay-filter="formDemo">确定</button>
-							<button type="reset" class="layui-btn layui-btn-primary">重置</button>
-						</div>
-					</div>
-				</form>
-				<script>
-					//Demo
-					layui.use('form', function(){
-					  var form = layui.form;
-					  //监听提交
-					  form.on('submit(formDemo)', function(data){
-					    console.log(JSON.stringify(data.field));
-					    
-					    mark_point(data.field.longt,data.field.lat,"img/locate.png")
-					    return false;
-					  });
-					});
-				</script>
+				</div>
 			</div>
 		</div>
 	</body>
+
 </html>
