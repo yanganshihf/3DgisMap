@@ -548,14 +548,13 @@
 					}
 				});
 		</script>
-		
-		
+
 	</head>
-	
+
 	<body>
 		<link rel="stylesheet" href="lib/layui-v2.5.4/css/layui.css" />
 		<script type="text/javascript" src="lib/layui-v2.5.4/layui.js"></script>
-		<script type="text/javascript" src="lib/layui-v2.5.4/lay/modules/form.js" ></script>
+		<script type="text/javascript" src="lib/layui-v2.5.4/lay/modules/form.js"></script>
 		<div id="viewDiv"></div>
 		<!--鼠标经纬度-->
 		<div id="PositionInfo" style="display: none;z-index: 10">
@@ -653,35 +652,37 @@
 			</div>
 			<div>
 				<form class="layui-form layui-form-pane" action="">
-  
-				  <div class="layui-form-item" pane>
-				    <label class="layui-form-label">单选框</label>
-				    <div class="layui-input-block">
-				      <input type="radio" name="inputWay" value="小数" title="小数" checked>
-				      <input type="radio" name="inputWay" value="度分秒" title="度分秒">
-				    </div>
-				  </div>
-				  <div class="layui-form-item" pane>
-				    <label class="layui-form-label">经度</label>
-				    <div class="layui-input-block">
-				      <input type="text" name="title" required lay-verify="required" placeholder="请输入经度" autocomplete="off" class="layui-input">
-				    </div>
-				  </div>
-				  <div class="layui-form-item" pane>
-				    <label class="layui-form-label">纬度</label>
-				    <div class="layui-input-block">
-				      <input type="text" name="title" required lay-verify="required" placeholder="请输入纬度" autocomplete="off" class="layui-input">
-				    </div>
-				  </div>
-				  <div class="layui-form-item">
-				    <div class="layui-input-block">
-				      <button class="layui-btn" lay-submit lay-filter="formDemo">确定</button>
-				      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
-				    </div>
-				  </div>
+					<div class="layui-form-item" pane>
+						<label class="layui-form-label">经度</label>
+						<div class="layui-input-block">
+							<input type="number" min="73" max="135" step="0.00001" name="longt" required lay-verify="required" placeholder="请输入经度" autocomplete="off" class="layui-input">
+						</div>
+					</div>
+					<div class="layui-form-item" pane>
+						<label class="layui-form-label">纬度</label>
+						<div class="layui-input-block">
+							<input type="number" min="4" max="53" step="0.00001" name="lat" required lay-verify="required" placeholder="请输入纬度" autocomplete="off" class="layui-input">
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<div class="layui-input-block" style="margin-left: 75px;">
+							<button class="layui-btn" lay-submit lay-filter="formDemo">确定</button>
+							<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+						</div>
+					</div>
 				</form>
+				<script>
+					//Demo
+					layui.use('form', function(){
+					  var form = layui.form;
+					  //监听提交
+					  form.on('submit(formDemo)', function(data){
+					    console.log(JSON.stringify(data.field));
+					    return false;
+					  });
+					});
+				</script>
 			</div>
 		</div>
 	</body>
-
 </html>
