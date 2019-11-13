@@ -77,6 +77,26 @@
 				overflow-y: auto;
 				overflow-x: hidden;
 			}
+			
+			.Progress {
+				width: 100%;
+				background-color: #ddd;
+			}
+			
+			#Bar_power {
+				height: 30px;
+				background-color: #4CAF50;
+				text-align: center;
+				line-height: 30px;
+				color: white;
+			}
+			#Bar_jindu {
+				height: 30px;
+				background-color: #3C72C4;
+				text-align: center;
+				line-height: 30px;
+				color: white;
+			}
 		</style>
 
 		<link rel="stylesheet" href="https://js.arcgis.com/4.13/esri/css/main.css">
@@ -505,7 +525,9 @@
 									"messionName": value.messionName,
 									"messionType": value.messionType,
 									"planeType": value.planeType,
-									"power": value.power
+									"power": value.power,
+									"jindu": value.jindu,
+									"line": value.line,
 								};
 								markLayer.add(graphic);
 							});
@@ -544,8 +566,13 @@
 						$("#messionName").html(attrs.messionName);
 						$("#messionType").html(attrs.messionType);
 						$("#planeType").html(attrs.planeType);
-						$("#power").html(attrs.power);
 
+						// 进度条赋值
+						$("#Bar_power").width(attrs.power);
+						$("#Bar_power").html(attrs.power);
+						$("#Bar_jindu").width(attrs.jindu);
+						$("#Bar_jindu").html(attrs.jindu);
+						
 						document.getElementById("resultDiv").style.display = "inline";
 						view.ui.add("resultDiv", "top-right");
 					}
@@ -612,7 +639,7 @@
 		<div id="resultDiv" class="esri-widget">
 			<div>
 				<p>
-					<strong>无人机信息</strong>
+					<strong>飞机详情</strong>
 					<i onclick="closeResultDiv()" class="layui-icon layui-icon-close" style="float: right;"></i>
 					<script>
 						function closeResultDiv() {
@@ -651,12 +678,25 @@
 					</tr>
 					<tr>
 						<th>飞机电量</th>
-						<th id="power"></th>
+
+						<th>
+							<div class="Progress">
+								<div id="Bar_power"></div>
+							</div>
+						</th>
 					</tr>
+					<tr>
+						<th>任务进度</th>
+
+						<th>
+							<div class="Progress">
+								<div id="Bar_jindu"></div>
+							</div>
+						</th>
 				</tbody>
 			</table>
 		</div>
-
+		
 		<!--坐标定位输入-->
 		<script src="js/markLocate.js"></script>
 		<div id="locateDiv" class="esri-widget">
