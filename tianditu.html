@@ -90,6 +90,7 @@
 				line-height: 30px;
 				color: white;
 			}
+			
 			#Bar_jindu {
 				height: 30px;
 				background-color: #3C72C4;
@@ -551,12 +552,36 @@
 							var results = response.results;
 							var graphic = response.results[0].graphic;
 
+							markLine(graphic.attributes.line);
+
 							// 如果是标记飞行点
 							if(graphic.attributes.graphicFlag == "1") {     //如果点击的是graphic
 								alertDeivceInfo(graphic);
 							}
 						})
 					})
+
+					// 标记折线
+					function markLine(lineArray) {
+						debugger;
+						var polyline = {
+							type: "polyline", // autocasts as new Polyline()
+							paths: lineArray
+						};
+
+						var lineSymbol = {
+							type: "simple-line", // autocasts as new SimpleLineSymbol()
+							color: [226, 119, 40], // RGB color values as an array
+							width: 4
+						};
+						
+						var polylineGraphic = new Graphic({
+						    geometry: polyline, // Add the geometry created in step 4
+						    symbol: lineSymbol
+						  });
+						
+						markLayer.add(polylineGraphic);
+					}
 
 					function alertDeivceInfo(graphic) {
 						// 设置属性
@@ -572,7 +597,7 @@
 						$("#Bar_power").html(attrs.power);
 						$("#Bar_jindu").width(attrs.jindu);
 						$("#Bar_jindu").html(attrs.jindu);
-						
+
 						document.getElementById("resultDiv").style.display = "inline";
 						view.ui.add("resultDiv", "top-right");
 					}
@@ -696,7 +721,7 @@
 				</tbody>
 			</table>
 		</div>
-		
+
 		<!--坐标定位输入-->
 		<script src="js/markLocate.js"></script>
 		<div id="locateDiv" class="esri-widget">
