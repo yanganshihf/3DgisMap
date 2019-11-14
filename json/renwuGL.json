@@ -6,9 +6,9 @@
 		{
 			"id": 1,
 			"username": "",
-			"sex": "张三",
-			"city": "2019.06.05",
-			"sign": "一天8小时",
+			"zhixingren": "张三",
+			"zhixingshijian": "2019.06.05",
+			"zhixingzhouqi": "一天8小时",
 			"zhuangtai": "进行中",
 			"graphicFlag": "4",
 			"polygon": [
@@ -32,9 +32,9 @@
 		}, {
 			"id": 2,
 			"username": "",
-			"sex": "张三",
-			"city": "2019.06.05",
-			"sign": "",
+			"zhixingren": "张三",
+			"zhixingshijian": "2019.06.05",
+			"zhixingzhouqi": "",
 			"zhuangtai": "进行中",
 			"graphicFlag": "4",
 			"polygon": [
@@ -58,9 +58,9 @@
 		}, {
 			"id": 3,
 			"username": "",
-			"sex": "张三",
-			"city": "2019.06.05",
-			"sign": "一天8小时",
+			"zhixingren": "张三",
+			"zhixingshijian": "2019.06.05",
+			"zhixingzhouqi": "一天8小时",
 			"zhuangtai": "未开始",
 			"graphicFlag": "4",
 			"polygon": [

@@ -59,7 +59,7 @@
 				color: #e4e4e4;
 			}
 			
-			#resultDiv {
+			#resultDiv,#resultDiv_renwu{
 				min-width: 300px;
 				font-size: 14px;
 				padding: 10px;
@@ -540,7 +540,6 @@
 						}
 					});
 					
-					
 					// 获取任务信息
 					$.ajax({
 						url: "json/renwuGL.json", //请求的url地址
@@ -611,12 +610,15 @@
 							var results = response.results;
 							var graphic = response.results[0].graphic;
 
-							debugger;
+							
 
 							// 如果是标记飞行点
 							if(graphic.attributes.graphicFlag == "1") {     //如果点击的是graphic
-								alertDeivceInfo(graphic);
+								alert_aircraft_Info(graphic);
 								markLine(graphic);
+							}else if(graphic.attributes.graphicFlag == "4"){
+							// 如果是任务
+								alert_renwu_info(graphic);
 							}
 						})
 					})
@@ -699,8 +701,8 @@
 						markLayer.add(polylineGraphic_complete);
 					}*/
 					
-					
-					function alertDeivceInfo(graphic) {
+					// 显示飞机信息
+					function alert_aircraft_Info(graphic) {
 						// 设置属性
 						var attrs = graphic.attributes;
 						$("#manager").html(attrs.manager);
@@ -718,7 +720,21 @@
 						document.getElementById("resultDiv").style.display = "inline";
 						view.ui.add("resultDiv", "top-right");
 					}
-
+					// 显示任务信息
+					function alert_renwu_info(graphic) {
+						debugger;
+						// 设置属性
+						var attrs = graphic.attributes;
+						$("#username").html(attrs.username);
+						$("#zhixingren").html(attrs.zhixingren);
+						$("#zhixingshijian").html(attrs.zhixingshijian);
+						$("#zhixingzhouqi").html(attrs.zhixingzhouqi);
+						$("#zhuangtai").html(attrs.zhuangtai);
+						
+						document.getElementById("resultDiv_renwu").style.display = "inline";
+						view.ui.add("resultDiv_renwu", "top-right");
+					}
+					
 					// 图层列表
 					var layerList = new LayerList({
 						view: view,
@@ -844,6 +860,51 @@
 				</tbody>
 			</table>
 		</div>
+		
+		<div id="resultDiv_renwu" class="esri-widget">
+			<div>
+				<p>
+					<strong>任务详情</strong>
+					<i onclick="closeResultDiv_renwu()" class="layui-icon layui-icon-close" style="float: right;"></i>
+					<script>
+						function closeResultDiv_renwu() {
+							document.getElementById("resultDiv_renwu").style.display = "none";
+						}
+					</script>
+				</p>
+			</div>
+			<table class="layui-table">
+				<colgroup>
+					<col width="150">
+					<col width="150">
+					<col>
+				</colgroup>
+
+				<tbody>
+					<tr>
+						<th>任务名称</th>
+						<th id="username"></th>
+					</tr>
+					<tr>
+						<th>执行人</th>
+						<th id="zhixingren"></th>
+					</tr>
+					<tr>
+						<th>执行时间</th>
+						<th id="zhixingshijian"></th>
+					</tr>
+					<tr>
+						<th>执行周期</th>
+						<th id="zhixingzhouqi"></th>
+					</tr>
+					<tr>
+						<th>执行状态</th>
+						<th id="zhuangtai"></th>
+					</tr
+				</tbody>
+			</table>
+		</div>
+		
 		<script>
 			var videoObject = {
 				container: '#video', //“#”代表容器的ID，“.”或“”代表容器的class
@@ -961,7 +1022,7 @@
 							function DegreeConvertBack(du, fen, miao) {
 								var numStr = Math.abs(du) + Math.abs(fen) / 60 + Math.abs(miao) / 3600;
 								var num = numStr.toFixed(5);
-								// debugger;
+								// 
 								return num;
 							}
 						</script>
