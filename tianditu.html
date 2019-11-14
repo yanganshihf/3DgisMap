@@ -540,28 +540,24 @@
 						}
 					});
 					
-					addPolygon([
-				            [111.325, 38.05444],
-				            [111.35416, 38.06055],
-				            [111.34556, 38.012778],
-				            [111.31583, 38.02778]
-				          ]);
-					addPolygon([
-				            [111.29361, 38.08333],
-				            [111.286, 38.04138],
-				            [111.30694, 38.04208],
-				            [111.31019, 38.09]
-				          ]);
-				          
-				    addPolygon([
-				            [111.32361, 38.11433],
-				            [111.34958, 38.141],
-				            [111.325, 38.20083],
-				            [111.28861, 38.19167]
-				          ]);
-				    
+					
+					// 获取任务信息
+					$.ajax({
+						url: "json/renwuGL.json", //请求的url地址
+						dataType: "json", //返回格式为json
+						async: true, //请求是否异步，默认为异步，这也是ajax重要特性
+						type: "GET",
+						success: function(req) {
+							var dataArr = req.data;
+							//请求成功时处理
+							$.each(dataArr, function(i, value) {
+								addPolygon(value);
+							});
+						}
+					});
+					
 					// 添加面图层
-					function addPolygon(rings){
+					function addPolygon(attrs){
 						 // Create a polygon geometry
 				        var polygon = {
 				          type: "polygon", // autocasts as new Polygon()
@@ -571,7 +567,7 @@
 				            [111.34556, 38.012778],
 				            [111.31583, 38.02778]
 				          ]*/
-				          rings:rings
+				          rings:attrs.polygon
 				        };
 						
 				        // Create a symbol for rendering the graphic
@@ -590,7 +586,8 @@
 				          	geometry: polygon,
 				          	symbol: fillSymbol
 				        });
-						
+				        // 设置参数
+						polygonGraphic.attributes = attrs;
 						messionLayer.add(polygonGraphic);
 					}
 					
