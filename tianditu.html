@@ -129,7 +129,7 @@
 			// 获取配置文件
 			getSetting();
 			// 
-			var map, view, markLayer;
+			var map, view, markLayer,messionLayer;
 			require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/layers/BaseTileLayer", "esri/layers/support/TileInfo", "esri/layers/WebTileLayer", "esri/symbols/LabelSymbol3D", "esri/Color", "esri/widgets/DirectLineMeasurement3D/DirectLineMeasurement3DViewModel", "esri/widgets/AreaMeasurement3D/AreaMeasurement3DViewModel",
 					"esri/config", "esri/Basemap", "esri/request", "esri/widgets/BasemapGallery", "esri/widgets/Expand", "esri/widgets/ScaleBar",
 					"esri/layers/TileLayer", "esri/layers/MapImageLayer", "esri/layers/FeatureLayer", "esri/widgets/LayerList", "esri/core/urlUtils",
@@ -481,7 +481,11 @@
 					markLayer = new GraphicsLayer();
 					markLayer.title = "标记图层";
 					map.add(markLayer);
-
+					
+					messionLayer = new GraphicsLayer();
+					messionLayer.title = "任务图层";
+					map.add(messionLayer);
+					
 					var markerSymbol = {
 						type: "picture-marker", // autocasts as new
 						// PictureMarkerSymbol()
@@ -535,7 +539,64 @@
 							});
 						}
 					});
-
+					
+					addPolygon([
+				            [111.325, 38.05444],
+				            [111.35416, 38.06055],
+				            [111.34556, 38.012778],
+				            [111.31583, 38.02778]
+				          ]);
+					addPolygon([
+				            [111.29361, 38.08333],
+				            [111.286, 38.04138],
+				            [111.30694, 38.04208],
+				            [111.31019, 38.09]
+				          ]);
+				          
+				    addPolygon([
+				            [111.32361, 38.11433],
+				            [111.34958, 38.141],
+				            [111.325, 38.20083],
+				            [111.28861, 38.19167]
+				          ]);
+				    
+					// 添加面图层
+					function addPolygon(rings){
+						 // Create a polygon geometry
+				        var polygon = {
+				          type: "polygon", // autocasts as new Polygon()
+				          /*rings: [
+				            [111.325, 38.05444],
+				            [111.35416, 38.06055],
+				            [111.34556, 38.012778],
+				            [111.31583, 38.02778]
+				          ]*/
+				          rings:rings
+				        };
+						
+				        // Create a symbol for rendering the graphic
+				        var fillSymbol = {
+				          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+				          color: [43,213,179, 0.7],
+				          outline: {
+				            // autocasts as new SimpleLineSymbol()
+				            color: [255, 255, 255],
+				            width: 1
+				          }
+				        };
+				
+				        // Add the geometry and symbol to a new graphic
+				        var polygonGraphic = new Graphic({
+				          	geometry: polygon,
+				          	symbol: fillSymbol
+				        });
+						
+						messionLayer.add(polygonGraphic);
+					}
+					
+					
+					
+					
 					// 地图单击事件
 					view.on("click", function(evt) {
 						// 获取点击图形
