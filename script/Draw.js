@@ -795,9 +795,9 @@ define(["esri/core/declare",
             messageTemplate: {
                 singleClickAdd: '<b>Single</b> click to add point.',
                 dblclickend: '<b>Double</b> click to end.',
-                clickdblclick: '<b>Single</b> click to continue.<br/><b>Double</b> click to end.',
-                clickdblright: '<b>Single</b> click to continue.<br/><b>Right</b> click to add new arrow. <br/><b>Double</b> click to end.',
-                singleClickStart: '<b>Single</b> click to start.',
+                clickdblclick: '<b>Single</b> 单击继续<br/><b>Double</b> click to end.',
+                clickdblright: '<b>单击左键</b> 继续标绘<br/><b>单击右键</b> 添加新箭头 <br/><b>双击左键</b> 结束绘制',
+                singleClickStart: '<b>单击左键</b> 开始标绘',
                 clickAddSecond: '<b>Single</b> click to add second point.',
                 clickCubic: '<b>Single</b> click to cubic a polygon'
             }
