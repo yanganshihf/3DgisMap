@@ -36,7 +36,6 @@
 				text-align: center;
 				box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
 			}
-			
 			.action-button {
 				font-size: 16px;
 				background-color: transparent;
@@ -130,7 +129,7 @@
 			getSetting();
 			// 
 			var map, view, markLayer,messionLayer;
-			require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/layers/BaseTileLayer", "esri/layers/support/TileInfo", "esri/layers/WebTileLayer", "esri/symbols/LabelSymbol3D", "esri/Color", "esri/widgets/DirectLineMeasurement3D/DirectLineMeasurement3DViewModel", "esri/widgets/AreaMeasurement3D/AreaMeasurement3DViewModel",
+			require(["esri/Map", "esri/widgets/Slice","esri/views/MapView", "esri/views/SceneView", "esri/layers/BaseTileLayer", "esri/layers/support/TileInfo", "esri/layers/WebTileLayer", "esri/symbols/LabelSymbol3D", "esri/Color", "esri/widgets/DirectLineMeasurement3D/DirectLineMeasurement3DViewModel", "esri/widgets/AreaMeasurement3D/AreaMeasurement3DViewModel",
 					"esri/config", "esri/Basemap", "esri/request", "esri/widgets/BasemapGallery", "esri/widgets/Expand", "esri/widgets/ScaleBar",
 					"esri/layers/TileLayer", "esri/layers/MapImageLayer", "esri/layers/FeatureLayer", "esri/widgets/LayerList", "esri/core/urlUtils",
 					"esri/tasks/QueryTask", "esri/tasks/support/Query", "esri/Graphic", "esri/layers/GraphicsLayer", "esri/geometry/Point", "esri/symbols/TextSymbol", "esri/layers/ElevationLayer",
@@ -139,7 +138,7 @@
 					"esri/widgets/Zoom", "esri/widgets/NavigationToggle", "esri/widgets/Compass", "esri/widgets/DirectLineMeasurement3D",
 					"esri/widgets/AreaMeasurement3D", "esri/Camera"
 				],
-				function(Map, MapView, SceneView, BaseTileLayer, TileInfo, WebTileLayer, LabelSymbol3D, Color, DirectLineMeasurement3DViewModel, AreaMeasurement3DViewModel,
+				function(Map,Slice, MapView, SceneView, BaseTileLayer, TileInfo, WebTileLayer, LabelSymbol3D, Color, DirectLineMeasurement3DViewModel, AreaMeasurement3DViewModel,
 					esriConfig, Basemap, esriRequest, BasemapGallery, Expand, ScaleBar, TileLayer, MapImageLayer, FeatureLayer, LayerList, urlUtils,
 					QueryTask, Query, Graphic, GraphicsLayer, Point, TextSymbol, ElevationLayer, LabelClass,
 					WebMap, Draw, Polygon, Polyline, geometryEngine, Legend, PictureMarkerSymbol, Font, IdentifyTask, IdentifyParameters, arrayUtils,
@@ -309,7 +308,7 @@
 						camera: cam,
 						map: map,
 					});
-
+					
 					// 底图切换
 					var basemapGallery = new BasemapGallery({
 						view: view,
@@ -462,7 +461,10 @@
 						.addEventListener("click", function() {
 							location.reload();
 						});
-
+						
+					
+					
+					
 					// 加入行政界线
 					var lineLayer = new MapImageLayer({
 						url: setting.xingzhengjie,
@@ -484,6 +486,7 @@
 					
 					messionLayer = new GraphicsLayer();
 					messionLayer.title = "任务图层";
+					messionLayer.visible = false;
 					map.add(messionLayer);
 					
 					var markerSymbol = {
@@ -748,6 +751,33 @@
 						expandTooltip: "图层列表"
 					});
 					view.ui.add(lyrLstExpand, "top-right");
+					
+					
+					
+					// 剖面分析
+					const slice = new Slice({
+					  view: view
+					});
+					
+					var flag = 0
+					// 剖面分析
+					view.ui.add("topbar_slice", "top-left");
+					document.getElementById("topbar_slice").style.display = "inline";
+					document
+						.getElementById("sliceBtn")
+						.addEventListener("click", function() {
+							// Add widget to the bottom left corner of the view
+							if(flag == 0){
+								view.ui.add(slice, {
+								  position: "top-right"
+								});
+								flag=1;
+							}else{
+								view.ui.remove(slice);
+								
+								flag=0;
+							}
+						});
 				});
 		</script>
 
@@ -793,6 +823,11 @@
 		<!--坐标定位-->
 		<div style="display: none;background-color: #FFFFFF;" id="topbar_locate">
 			<button class="nomal-button esri-icon-map-pin" id="locate" type="button" title="坐标定位"></button>
+		</div>
+		
+		<!--切面分析-->
+		<div style="display: none;background-color: #FFFFFF;" id="topbar_slice">
+			<button class="nomal-button esri-icon-feature-layer" id="sliceBtn" type="button" title="剖面分析"></button>
 		</div>
 		
 		<!--查询结果显示页面-->

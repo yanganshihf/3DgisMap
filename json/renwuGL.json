@@ -6,7 +6,7 @@
 		{
 			"id": 1,
 			"username": "",
-			"zhixingren": "张三",
+			"zhixingren": "李四",
 			"zhixingshijian": "2019.06.05",
 			"zhixingzhouqi": "一天8小时",
 			"zhuangtai": "进行中",
@@ -32,7 +32,7 @@
 		}, {
 			"id": 2,
 			"username": "",
-			"zhixingren": "张三",
+			"zhixingren": "王武",
 			"zhixingshijian": "2019.06.05",
 			"zhixingzhouqi": "",
 			"zhuangtai": "进行中",
