@@ -1,0 +1,1080 @@
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+		<title>2dmap</title>
+		<style>
+			html,
+			body,
+			#viewDiv {
+				padding: 0;
+				margin: 0;
+				height: 100%;
+				width: 100%;
+			}
+			
+			#PositionInfo {
+				position: absolute;
+				display: inline;
+				bottom: 0px;
+				color: white;
+				height: 20px;
+				width: 100%;
+				box-shadow: none;
+				background: rgb(0, 0, 0, 0.3);
+				line-height: 20px;
+			}
+			
+			.nomal-button {
+				font-size: 16px;
+				background-color: transparent;
+				border: 1px solid #d3d3d3;
+				color: #6e6e6e;
+				height: 32px;
+				width: 32px;
+				text-align: center;
+				box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+			}
+			
+			.action-button {
+				font-size: 16px;
+				background-color: transparent;
+				border: 1px solid #d3d3d3;
+				color: #6e6e6e;
+				height: 32px;
+				width: 32px;
+				text-align: center;
+				box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+			}
+			
+			.action-button:hover,
+			.action-button:focus {
+				background: #0079c1;
+				color: #e4e4e4;
+			}
+			
+			.active {
+				background: #0079c1;
+				color: #e4e4e4;
+			}
+			
+			#resultDiv,
+			#resultDiv_renwu {
+				min-width: 300px;
+				font-size: 14px;
+				padding: 10px;
+				display: none;
+				overflow-y: auto;
+				overflow-x: hidden;
+			}
+			
+			#locateDiv {
+				min-width: 300px;
+				font-size: 14px;
+				padding: 10px;
+				padding-bottom: 0px;
+				display: none;
+				overflow-y: auto;
+				overflow-x: hidden;
+			}
+			
+			.Progress {
+				width: 100%;
+				background-color: #ddd;
+			}
+			
+			#Bar_power {
+				height: 30px;
+				background-color: #4CAF50;
+				text-align: center;
+				line-height: 30px;
+				color: white;
+			}
+			
+			#Bar_jindu {
+				height: 30px;
+				background-color: #3C72C4;
+				text-align: center;
+				line-height: 30px;
+				color: white;
+			}
+		</style>
+
+		<link rel="stylesheet" href="https://js.arcgis.com/4.13/esri/css/main.css">
+		<script src="https://js.arcgis.com/4.13/"></script>
+		<script type="text/javascript" src="js/coordTransfer.js"></script>
+		<script type="text/javascript" src="lib/jquery-3.4.1/jquery-3.4.1.min.js"></script>
+
+		<!--读取配置文件方法-->
+		<script>
+			var setting = null;
+			//window.onload = function() {
+			function getSetting() {
+				var url = "json/setting.json" /*json文件url，本地的就写本地的位置，如果是服务器的就写服务器的路径*/
+				var request = new XMLHttpRequest();
+				request.open("get", url); /*设置请求方法与路径*/
+				request.send(null); /*不发送数据到服务器*/
+				request.onload = function() { /*XHR对象获取到返回信息后执行*/
+					if(request.status == 200) { /*返回状态为200，即为数据获取成功*/
+						setting = JSON.parse(request.responseText);
+						for(var i = 0; i < setting.length; i++) {
+							// console.log(setting[i].name);
+						}
+						// console.log(setting);
+					}
+				}
+			}
+		</script>
+		<script>
+			// 获取配置文件
+			getSetting();
+			// 
+			var map, view, markLayer, messionLayer;
+			require([
+				"esri/views/MapView",
+				"esri/Map", "esri/Basemap", "esri/Color", "esri/config", "esri/request",
+				"esri/widgets/DistanceMeasurement2D", "esri/widgets/BasemapGallery",
+				"esri/widgets/AreaMeasurement2D", "esri/layers/WebTileLayer", 
+				"esri/geometry/Polygon", "esri/layers/BaseTileLayer",
+				"esri/layers/MapImageLayer","esri/layers/GraphicsLayer",
+				"esri/widgets/LayerList","esri/geometry/Point",
+				"esri/Graphic","esri/widgets/Expand"
+			], function(MapView, Map, Basemap, Color, esriConfig, 
+				esriRequest, DistanceMeasurement2D, BasemapGallery, 
+				AreaMeasurement2D, WebTileLayer, Polygon, BaseTileLayer,
+				MapImageLayer,GraphicsLayer,LayerList,Point,Graphic,Expand) {
+				var rings = [
+					[
+						[119.1, 50.0],
+						[119.1, 51.0],
+						[121.0, 51.0],
+						[121.0, 50.0],
+						[119.1, 50.0] // same as first vertex
+					]
+				];
+				var eErGuNaPolygon = new Polygon({
+					hasZ: false,
+					hasM: false,
+					rings: rings,
+					spatialReference: {
+						wkid: 4326
+					}
+				});
+				var tdtImagerLayer = BaseTileLayer.createSubclass({
+					properties: {
+						urlTemplate: null
+					},
+					getTileUrl: function(level, row, col) {
+						var url = "http://t" + col % 8 + ".tianditu.com/DataServer?T=img_w&x=" + col + "&y=" + row + "&l=" + level + "&tk=d382db32edadb2d02f137a669e8d1308";
+						return url;
+					},
+					fetchTile: function(level, row, col) {
+						var url = this.getTileUrl(level, row, col);
+						return esriRequest(url, {
+								responseType: "image"
+							})
+							.then(function(response) {
+								var image = response.data;
+								var width = this.tileInfo.size[0];
+								var height = this.tileInfo.size[0];
+								var canvas = document.createElement("canvas");
+								var context = canvas.getContext("2d");
+								canvas.width = width;
+								canvas.height = height;
+								context.drawImage(image, 0, 0, width, height);
+								return canvas;
+							}.bind(this));
+					}
+				});
+				var tdtbizoZLayer = BaseTileLayer.createSubclass({
+					properties: {
+						urlTemplate: null
+					},
+					getTileUrl: function(level, row, col) {
+						var url = "http://t" + col % 8 + ".tianditu.com/DataServer?T=cva_w&x=" + col + "&y=" + row + "&l=" + level + "&tk=d382db32edadb2d02f137a669e8d1308";
+						return url;
+					},
+					fetchTile: function(level, row, col) {
+						var url = this.getTileUrl(level, row, col);
+						return esriRequest(url, {
+								responseType: "image"
+							})
+							.then(function(response) {
+								var image = response.data;
+								var width = this.tileInfo.size[0];
+								var height = this.tileInfo.size[0];
+								var canvas = document.createElement("canvas");
+								var context = canvas.getContext("2d");
+								canvas.width = width;
+								canvas.height = height;
+								context.drawImage(image, 0, 0, width, height);
+								return canvas;
+							}.bind(this));
+					}
+				});
+				var tdtVectLayer = BaseTileLayer.createSubclass({
+					properties: {
+						urlTemplate: null
+					},
+					getTileUrl: function(level, row, col) {
+						var url = "http://t" + col % 8 + ".tianditu.com/DataServer?T=vec_w&x=" + col + "&y=" + row + "&l=" + level + "&tk=d382db32edadb2d02f137a669e8d1308";
+						return url;
+					},
+					fetchTile: function(level, row, col) {
+						var url = this.getTileUrl(level, row, col);
+						return esriRequest(url, {
+								responseType: "image"
+							})
+							.then(function(response) {
+								var image = response.data;
+								var width = this.tileInfo.size[0];
+								var height = this.tileInfo.size[0];
+								var canvas = document.createElement("canvas");
+								var context = canvas.getContext("2d");
+								canvas.width = width;
+								canvas.height = height;
+								context.drawImage(image, 0, 0, width, height);
+								return canvas;
+							}.bind(this));
+					}
+				});
+				var TintLayer = WebTileLayer.createSubclass({
+					properties: {
+						urlTemplate: null,
+						tint: {
+							value: null,
+							type: Color
+						}
+					},
+					getTileUrl: function(level, row, col) {
+						return this.urlTemplate.replace("{z}", level).replace("{x}", col).replace("{y}", row);
+					},
+					fetchTile: function(level, row, col) {
+						var url = this.getTileUrl(level, row, col);
+						return esriRequest(url, {
+							responseType: "image",
+							allowImageDataAccess: true
+						}).then(function(response) {
+							var image = response.data;
+							var width = this.tileInfo.size[0];
+							var height = this.tileInfo.size[0];
+							var canvas = document.createElement("canvas");
+							var context = canvas.getContext("2d");
+							canvas.width = width;
+							canvas.height = height;
+							context.drawImage(image, 0, 0, width, height);
+							return canvas;
+						}.bind(this));
+					}
+				});
+				esriConfig.request.corsEnabledServers.push("t0.tianditu.cn", "t1.tianditu.cn", "t2.tianditu.cn", "t3.tianditu.cn", "t4.tianditu.cn", "t5.tianditu.cn", "t6.tianditu.cn", "t7.tianditu.cn");
+				//天地图
+				var ggVectorLayer = new tdtVectLayer();
+				//底图标注  
+				var ggLabelLayer = new tdtbizoZLayer();
+				//天地图
+				var ggSatelliteLayer = new tdtImagerLayer();
+				var imageBasemap2 = new Basemap({
+					baseLayers: [ggSatelliteLayer, ggLabelLayer],
+					title: "卫星影像",
+					id: "imageBasemap",
+					thumbnailUrl: "img/satellite.png"
+				});
+				var vectorBasemap2 = new Basemap({
+					baseLayers: [ggVectorLayer, ggLabelLayer],
+					title: "行政区划",
+					id: "vectorBasemap",
+					thumbnailUrl: "img/streets.png"
+				});
+
+				map = new Map({
+					basemap: imageBasemap2,
+					ground: "world-elevation" // show elevation
+				});
+
+				// 初始地图视角
+				/*var cam = new Camera({
+					position: { // observation point
+						x: setting.map_view.camera.x,
+						y: setting.map_view.camera.y,
+						z: setting.map_view.camera.z // altitude in meters
+					},
+					tilt: setting.map_view.tilt // perspective in degrees
+				});
+
+				view = new SceneView({
+					container: "viewDiv",
+					camera: cam,
+					map: map,
+				});*/
+				view = new MapView({
+					container: "viewDiv",
+					map: map,
+					center: [108.71511, 34.09042],
+					zoom: 11
+				});
+
+				// 底图切换
+				var basemapGallery = new BasemapGallery({
+					view: view,
+					container: document.createElement("div"),
+					source: [vectorBasemap2, imageBasemap2]
+				});
+
+				var bgExpand = new Expand({
+					view: view,
+					content: basemapGallery.container,
+					expandIconClass: "esri-icon-basemap"
+				});
+
+				view.ui.remove("attribution");
+
+				// 显示鼠标经纬度
+				document.getElementById("PositionInfo").style.display = "inline";
+				view.ui.add(bgExpand, "top-right");
+				view.on("pointer-move", pointerMoveEventHandler);
+
+				function pointerMoveEventHandler(event) {
+
+					view.when(function(response) {
+						var point = view.toMap({
+							x: event.x,
+							y: event.y
+						});
+						// console.log(point);
+						if(point == null) {
+							return;
+						}
+						var lonlat = mercator2lonlat(point);
+						var longitude = lonlat.x;
+						var latitude = lonlat.y;
+						var longtD = parseInt(longitude);
+						var latD = parseInt(latitude);
+						var longtM = parseInt((longitude - longtD) * 60);
+						var latM = parseInt((latitude - latD) * 60);
+						var longtS = (((longitude - longtD) * 60 - longtM) * 60).toFixed(2);
+						var latS = (((latitude - latD) * 60 - latM) * 60).toFixed(2);
+						var jingDu = longtD + '°' + longtM + '′' + longtS + '″';
+						var weiDu = latD + '°' + latM + '′' + latS + '″';
+						// // console.log(jingDu+"------------"+weiDu);
+						document.getElementById("pointlongt").innerHTML = jingDu;
+						document.getElementById("pointlat").innerHTML = weiDu;
+
+					});
+				}
+
+				// 初始地图
+				document.getElementById("topbar_intit_map").style.display = "inline";
+				view.ui.add("topbar_intit_map", "top-left");
+				document
+					.getElementById("intit_map")
+					.addEventListener("click", function() {
+						view.goTo(cam);
+					});
+
+				// 长度,面积量算
+				var activeWidget = null;
+				// add the toolbar for the measurement widgets
+				document.getElementById("topbar_measure_line").style.display = "inline";
+				view.ui.add("topbar_measure_line", "top-left");
+
+				document.getElementById("topbar_measure_area").style.display = "inline";
+				view.ui.add("topbar_measure_area", "top-left");
+				document
+					.getElementById("distanceButton")
+					.addEventListener("click", function() {
+						setActiveWidget(null);
+						if(!this.classList.contains("active")) {
+							setActiveWidget("distance");
+						} else {
+							setActiveButton(null);
+						}
+					});
+				document
+					.getElementById("areaButton")
+					.addEventListener("click", function() {
+						setActiveWidget(null);
+						if(!this.classList.contains("active")) {
+							setActiveWidget("area");
+						} else {
+							setActiveButton(null);
+						}
+					});
+
+				function setActiveWidget(type) {
+					switch(type) {
+						case "distance":
+							activeWidget = new DistanceMeasurement2D({
+								view: view
+							});
+
+							// skip the initial 'new measurement' button
+							activeWidget.viewModel.newMeasurement();
+
+							view.ui.add(activeWidget, "top-right");
+							setActiveButton(document.getElementById("distanceButton"));
+							break;
+						case "area":
+							activeWidget = new AreaMeasurement2D({
+								view: view
+							});
+
+							// skip the initial 'new measurement' button
+							activeWidget.viewModel.newMeasurement();
+
+							view.ui.add(activeWidget, "top-right");
+							setActiveButton(document.getElementById("areaButton"));
+							break;
+						case null:
+							if(activeWidget) {
+								view.ui.remove(activeWidget);
+								activeWidget.destroy();
+								activeWidget = null;
+							}
+							break;
+					}
+				}
+
+				function setActiveButton(selectedButton) {
+					// focus the view to activate keyboard shortcuts for sketching
+					view.focus();
+					var elements = document.getElementsByClassName("active");
+					for(var i = 0; i < elements.length; i++) {
+						elements[i].classList.remove("active");
+					}
+					if(selectedButton) {
+						selectedButton.classList.add("active");
+					}
+				}
+
+				// 坐标定位
+				document.getElementById("topbar_locate").style.display = "inline";
+				view.ui.add("topbar_locate", "top-left");
+				document
+					.getElementById("locate")
+					.addEventListener("click", function() {
+						// 显示坐标定位弹窗
+						view.ui.add("locateDiv", "top-right");
+						document.getElementById("locateDiv").style.display = "inline";
+					});
+
+				// 刷新
+				view.ui.add("topbar_refresh", "top-left");
+				document.getElementById("topbar_refresh").style.display = "inline";
+				document
+					.getElementById("refresh")
+					.addEventListener("click", function() {
+						location.reload();
+					});
+
+				// 加入行政界线
+				var lineLayer = new MapImageLayer({
+					url: setting.xingzhengjie,
+					title: "行政界",
+					sublayers: [{
+						id: 1,
+						title: "村界"
+					}, {
+						id: 0,
+						title: "乡界"
+					}]
+				});
+				map.add(lineLayer);
+
+				// 标记飞行点
+				markLayer = new GraphicsLayer();
+				markLayer.title = "标记图层";
+				map.add(markLayer);
+
+				messionLayer = new GraphicsLayer();
+				messionLayer.title = "任务图层";
+				messionLayer.visible = false;
+				map.add(messionLayer);
+
+				var markerSymbol = {
+					type: "picture-marker", // autocasts as new
+					// PictureMarkerSymbol()
+					url: "img/aircraft.png",
+					width: 30,
+					height: 25,
+					xoffset: 0,
+					yoffset: 8
+				};
+				var markerSymbol_chosed = {
+					type: "picture-marker", // autocasts as new
+					// PictureMarkerSymbol()
+					url: "img/aircraft_chosed.png",
+					width: 30,
+					height: 25,
+					xoffset: 0,
+					yoffset: 8
+				};
+				// 获取参数
+				$.ajax({
+					url: "json/airCraft.json", //请求的url地址
+					dataType: "json", //返回格式为json
+					async: true, //请求是否异步，默认为异步，这也是ajax重要特性
+					type: "GET",
+					success: function(req) {
+						//请求成功时处理
+						$.each(req, function(i, value) {
+							// 利用经纬度信息创建巡护人员坐标点
+							var pt = new Point(value.position[0], value.position[1]);
+
+							// 利用经纬度及符号画出巡护人员点
+							var graphic = new Graphic({
+								geometry: pt,
+								symbol: markerSymbol
+							});
+
+							// 设置点图形的属性信息
+							graphic.attributes = {
+								"graphicFlag": "1",
+								"manager": value.manager,
+								"messionDate": value.messionDate,
+								"messionName": value.messionName,
+								"messionType": value.messionType,
+								"planeType": value.planeType,
+								"power": value.power,
+								"jindu": value.jindu,
+								"line": value.line,
+								"line_complete": value.line_complete,
+							};
+							markLayer.add(graphic);
+						});
+					}
+				});
+
+				// 获取任务信息
+				$.ajax({
+					url: "json/renwuGL.json", //请求的url地址
+					dataType: "json", //返回格式为json
+					async: true, //请求是否异步，默认为异步，这也是ajax重要特性
+					type: "GET",
+					success: function(req) {
+						var dataArr = req.data;
+						//请求成功时处理
+						$.each(dataArr, function(i, value) {
+							addPolygon(value);
+						});
+					}
+				});
+
+				// 添加面图层
+				function addPolygon(attrs) {
+					// Create a polygon geometry
+					var polygon = {
+						type: "polygon", // autocasts as new Polygon()
+						/*rings: [
+						  [111.325, 38.05444],
+						  [111.35416, 38.06055],
+						  [111.34556, 38.012778],
+						  [111.31583, 38.02778]
+						]*/
+						rings: attrs.polygon
+					};
+
+					// Create a symbol for rendering the graphic
+					var fillSymbol = {
+						type: "simple-fill", // autocasts as new SimpleFillSymbol()
+						color: [43, 213, 179, 0.7],
+						outline: {
+							// autocasts as new SimpleLineSymbol()
+							color: [255, 255, 255],
+							width: 1
+						}
+					};
+
+					// Add the geometry and symbol to a new graphic
+					var polygonGraphic = new Graphic({
+						geometry: polygon,
+						symbol: fillSymbol
+					});
+					// 设置参数
+					polygonGraphic.attributes = attrs;
+					messionLayer.add(polygonGraphic);
+				}
+
+				// 地图单击事件
+				view.on("click", function(evt) {
+					// 获取点击图形
+					view.hitTest(evt).then(function(response) {
+						// 选中高亮
+						var graphicArray = markLayer.graphics.items;
+						$.each(graphicArray, function(i, value) {
+							if(value == response.results[0].graphic) {
+								value.symbol = markerSymbol_chosed;
+							} else {
+								value.symbol = markerSymbol;
+							}
+						});
+
+						var results = response.results;
+						var graphic = response.results[0].graphic;
+						// 如果是标记飞行点
+						if(graphic.attributes.graphicFlag == "1") {     //如果点击的是graphic
+							alert_aircraft_Info(graphic);
+							markLine(graphic);
+						} else if(graphic.attributes.graphicFlag == "4") {
+							// 如果是任务
+							alert_renwu_info(graphic);
+						}
+					})
+				})
+
+				// 标记折线
+				function markLine(graphic) {
+					var polyline = {
+						type: "polyline", // autocasts as new Polyline()
+						paths: graphic.attributes.line
+					};
+
+					var lineSymbol = {
+						type: "simple-line", // autocasts as new SimpleLineSymbol()
+						color: [226, 119, 40], // RGB color values as an array
+						width: 5
+					};
+
+					var polylineGraphic = new Graphic({
+						geometry: polyline, // Add the geometry created in step 4
+						symbol: lineSymbol,
+						attributes: {
+							graphicFlag: "2"
+						}
+					});
+					var polyline_complete = {
+						type: "polyline", // autocasts as new Polyline()
+						paths: graphic.attributes.line_complete
+					};
+
+					var lineSymbol_complete = {
+						type: "simple-line", // autocasts as new SimpleLineSymbol()
+						color: [100, 255, 0], // RGB color values as an array
+						width: 5
+					};
+
+					var polylineGraphic_complete = new Graphic({
+						geometry: polyline_complete, // Add the geometry created in step 4
+						symbol: lineSymbol_complete,
+						attributes: {
+							graphicFlag: "3"
+						}
+					});
+
+					var graphicArray = markLayer.graphics.items;
+					$.each(graphicArray, function(i, value) {
+						if(value.attributes.graphicFlag == "2") {
+							markLayer.remove(value);
+						} else if(value.attributes.graphicFlag == "3") {
+							markLayer.remove(value);
+						}
+					});
+					markLayer.addMany([polylineGraphic]);
+
+				}
+				/*function markLine_complete(graphic) {
+					var polyline_complete = {
+						type: "polyline", // autocasts as new Polyline()
+						paths: graphic.attributes.line_complete
+					};
+					
+					var lineSymbol_complete = {
+						type: "simple-line", // autocasts as new SimpleLineSymbol()
+						color: [100, 255, 0], // RGB color values as an array
+						width: 5
+					};
+					
+					var polylineGraphic_complete = new Graphic({
+					    geometry: polyline_complete, // Add the geometry created in step 4
+					    symbol: lineSymbol_complete,
+					    attributes:{
+					    	graphicFlag : "3"
+					    }
+					});
+					var graphicArray_complete = markLayer.graphics.items;
+					$.each(graphicArray_complete, function(i,value) {
+						if(value.attributes.graphicFlag == "3"){
+							markLayer.remove(value);
+						}
+					});
+					markLayer.add(polylineGraphic_complete);
+				}*/
+
+				// 显示飞机信息
+				function alert_aircraft_Info(graphic) {
+					// 设置属性
+					var attrs = graphic.attributes;
+					$("#manager").html(attrs.manager);
+					$("#messionDate").html(attrs.messionDate);
+					$("#messionName").html(attrs.messionName);
+					$("#messionType").html(attrs.messionType);
+					$("#planeType").html(attrs.planeType);
+
+					// 进度条赋值
+					$("#Bar_power").width(attrs.power);
+					$("#Bar_power").html(attrs.power);
+					$("#Bar_jindu").width(attrs.jindu);
+					$("#Bar_jindu").html(attrs.jindu);
+
+					document.getElementById("resultDiv").style.display = "inline";
+					view.ui.add("resultDiv", "top-right");
+				}
+				// 显示任务信息
+				function alert_renwu_info(graphic) {
+					debugger;
+					// 设置属性
+					var attrs = graphic.attributes;
+					$("#username").html(attrs.username);
+					$("#zhixingren").html(attrs.zhixingren);
+					$("#zhixingshijian").html(attrs.zhixingshijian);
+					$("#zhixingzhouqi").html(attrs.zhixingzhouqi);
+					$("#zhuangtai").html(attrs.zhuangtai);
+
+					document.getElementById("resultDiv_renwu").style.display = "inline";
+					view.ui.add("resultDiv_renwu", "top-right");
+				}
+
+				// 图层列表
+				var layerList = new LayerList({
+					view: view,
+					container: document.createElement("div")
+				});
+				// 图层列表展开
+				var lyrLstExpand = new Expand({
+					view: view,
+					content: layerList.container,
+					expandIconClass: "esri-icon-layer-list",
+					expandTooltip: "图层列表"
+				});
+				view.ui.add(lyrLstExpand, "top-right");
+
+				// 剖面分析
+				/*const slice = new Slice({
+					view: view
+				});
+
+				var flag = 0*/
+				// 剖面分析
+				//view.ui.add("topbar_slice", "top-left");
+				//document.getElementById("topbar_slice").style.display = "inline";
+				document
+					.getElementById("sliceBtn")
+					.addEventListener("click", function() {
+						// Add widget to the bottom left corner of the view
+						if(flag == 0) {
+							view.ui.add(slice, {
+								position: "top-right"
+							});
+							flag = 1;
+						} else {
+							view.ui.remove(slice);
+
+							flag = 0;
+						}
+					});
+
+				// view.ui.add("topbar_arrow", "top-left");
+				//document.getElementById("topbar_arrow").style.display = "inline";
+				document
+					.getElementById("arrowBtn")
+					.addEventListener("click", function() {
+						draw = new Draw({
+							view: view,
+							gl: markLayer
+						});
+						draw.activate(Draw.MULTIHEAD);
+					});
+			});
+		</script>
+
+	</head>
+
+	<body>
+		<link rel="stylesheet" href="lib/layui-v2.5.4/css/layui.css" />
+		<script type="text/javascript" src="lib/layui-v2.5.4/layui.js"></script>
+		<!--表单模块-->
+		<script type="text/javascript" src="lib/layui-v2.5.4/lay/modules/form.js"></script>
+		<!--选项卡模块-->
+		<script type="text/javascript" src="lib/layui-v2.5.4/lay/modules/element.js"></script>
+		<script type="text/javascript" src="ckplayer/ckplayer.js"></script>
+
+		<div id="viewDiv"></div>
+		<!--鼠标经纬度-->
+		<div id="PositionInfo" style="display: none;z-index: 10">
+			<span>经度:</span><span id="pointlongt" style="display:inline-block;width:120px;">----------</span>
+			<span style="padding-left:10px;display:inline-block;">纬度:</span><span id="pointlat" style="display:inline-block;width:120px;">----------</span>
+		</div>
+		<!--自定义工具栏-->
+		<!--初始地图-->
+
+		<div style="display: none;background-color: #FFFFFF;" id="topbar_intit_map">
+			<button class="nomal-button esri-icon-globe" id="intit_map" type="button" title="初始地图"></button>
+		</div>
+
+		<!---->
+		<div style="display: none;background-color: #FFFFFF;" id="topbar_refresh">
+			<button class="nomal-button esri-icon-refresh" id="refresh" type="button" title="刷新"></button>
+		</div>
+
+		<!--长度量算-->
+		<div style="display: none;background-color: #FFFFFF;" id="topbar_measure_line">
+			<button class="action-button esri-icon-measure-line" id="distanceButton" type="button" title="长度量算"></button>
+		</div>
+
+		<!--面积量算-->
+		<div style="display: none;background-color: #FFFFFF;" id="topbar_measure_area">
+			<button class="action-button esri-icon-measure-area" id="areaButton" type="button" title="面积量算"></button>
+		</div>
+
+		<!--坐标定位-->
+		<div style="display: none;background-color: #FFFFFF;" id="topbar_locate">
+			<button class="nomal-button esri-icon-map-pin" id="locate" type="button" title="坐标定位"></button>
+		</div>
+
+		<!--切面分析-->
+		<div style="display: none;background-color: #FFFFFF;" id="topbar_slice">
+			<button class="nomal-button esri-icon-feature-layer" id="sliceBtn" type="button" title="剖面分析"></button>
+		</div>
+		<!--態勢绘制-->
+		<div style="display: none;background-color: #FFFFFF;" id="topbar_arrow">
+			<button class="nomal-button esri-icon-overview-arrow-top-right" id="arrowBtn" type="button" title="态势绘制"></button>
+		</div>
+
+		<!--查询结果显示页面-->
+		<div id="resultDiv" class="esri-widget">
+			<div>
+				<p>
+					<strong>飞机详情</strong>
+					<i onclick="closeResultDiv()" class="layui-icon layui-icon-close" style="float: right;"></i>
+					<script>
+						function closeResultDiv() {
+							document.getElementById("resultDiv").style.display = "none";
+						}
+					</script>
+				</p>
+			</div>
+			<table class="layui-table">
+				<colgroup>
+					<col width="150">
+					<col width="150">
+					<col>
+				</colgroup>
+
+				<tbody>
+					<tr>
+						<th>任务名称</th>
+						<th id="messionName"></th>
+					</tr>
+					<tr>
+						<th>任务类型</th>
+						<th id="messionType"></th>
+					</tr>
+					<tr>
+						<th>执行人</th>
+						<th id="manager"></th>
+					</tr>
+					<tr>
+						<th>执行时间</th>
+						<th id="messionDate"></th>
+					</tr>
+					<tr>
+						<th>飞机型号</th>
+						<th id="planeType"></th>
+					</tr>
+					<tr>
+						<th>飞机电量</th>
+
+						<th>
+							<div class="Progress">
+								<div id="Bar_power"></div>
+							</div>
+						</th>
+					</tr>
+					<tr>
+						<th>任务进度</th>
+
+						<th>
+							<div class="Progress">
+								<div id="Bar_jindu"></div>
+							</div>
+						</th>
+					</tr>
+					<tr>
+						<div id="video" style="width:450px;height:280px;"></div>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div id="resultDiv_renwu" class="esri-widget">
+			<div>
+				<p>
+					<strong>任务详情</strong>
+					<i onclick="closeResultDiv_renwu()" class="layui-icon layui-icon-close" style="float: right;"></i>
+					<script>
+						function closeResultDiv_renwu() {
+							document.getElementById("resultDiv_renwu").style.display = "none";
+						}
+					</script>
+				</p>
+			</div>
+			<table class="layui-table">
+				<colgroup>
+					<col width="150">
+					<col width="150">
+					<col>
+				</colgroup>
+
+				<tbody>
+					<tr>
+						<th>任务名称</th>
+						<th id="username"></th>
+					</tr>
+					<tr>
+						<th>执行人</th>
+						<th id="zhixingren"></th>
+					</tr>
+					<tr>
+						<th>执行时间</th>
+						<th id="zhixingshijian"></th>
+					</tr>
+					<tr>
+						<th>执行周期</th>
+						<th id="zhixingzhouqi"></th>
+					</tr>
+					<tr>
+						<th>执行状态</th>
+						<th id="zhuangtai"></th>
+					</tr </tbody>
+			</table>
+		</div>
+
+		<script>
+			var videoObject = {
+				container: '#video', //“#”代表容器的ID，“.”或“”代表容器的class
+				variable: 'player', //该属性必需设置，值等于下面的new chplayer()的对象
+				flashplayer: true, //如果强制使用flashplayer则设置成true
+				video: '../video/example.flv' //视频地址
+			};
+			var player = new ckplayer(videoObject);
+		</script>
+		<!--坐标定位输入-->
+		<script src="js/markLocate.js"></script>
+		<div id="locateDiv" class="esri-widget">
+			<div style="margin-bottom: 25px;">
+				<p>
+					<strong>坐标定位</strong>
+					<i onclick="closelocateDiv()" class="layui-icon layui-icon-close" style="float: right;"></i>
+					<script>
+						function closelocateDiv() {
+							document.getElementById("locateDiv").style.display = "none";
+						}
+					</script>
+				</p>
+			</div>
+			<div class="layui-tab" lay-filter="demo">
+				<ul class="layui-tab-title">
+					<li class="layui-this">坐标</li>
+					<li>度分秒</li>
+
+				</ul>
+				<div class="layui-tab-content" style="padding-bottom: 0px;">
+					<div class="layui-tab-item layui-show">
+						<form class="layui-form layui-form-pane" action="">
+							<div class="layui-form-item" pane>
+								<label class="layui-form-label">经度</label>
+								<div class="layui-input-block">
+									<input type="number" min="108" max="135" step="0.00001" name="longt" required lay-verify="required" placeholder="请输入经度" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-form-item" pane>
+								<label class="layui-form-label">纬度</label>
+								<div class="layui-input-block">
+									<input type="number" min="34" max="53" step="0.00001" name="lat" required lay-verify="required" placeholder="请输入纬度" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<div class="layui-input-block" style="margin-left: 65px;">
+									<button class="layui-btn" lay-submit lay-filter="formDemo0">确定</button>
+									<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+								</div>
+							</div>
+						</form>
+						<script>
+							//Demo
+							layui.use('form', function() {
+								var form = layui.form;
+								//监听提交
+								form.on('submit(formDemo0)', function(data) {
+									console.log(JSON.stringify(data.field));
+									// 坐标定位方法
+									mark_point(data.field.longt, data.field.lat, "img/locate.png")
+									return false;
+								});
+							});
+						</script>
+					</div>
+					<div class="layui-tab-item">
+						<form class="layui-form layui-form-pane" action="">
+							<div class="layui-form-item" pane>
+								<label class="layui-form-label">经度</label>
+								<div class="layui-input-block">
+									<input type="number" min="108" max="135" step="1" name="longt_du" required lay-verify="required" placeholder="请输入度" autocomplete="off" class="layui-input">
+								</div>
+								<div class="layui-input-block">
+									<input type="number" min="0" value=0 max="59" step="1" name="longt_fen" placeholder="请输入分" autocomplete="off" class="layui-input">
+								</div>
+
+								<div class="layui-input-block">
+									<input type="number" min="0" value=0 max="59" step="0.00001" name="longt_miao" placeholder="请输入秒" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-form-item" pane>
+								<label class="layui-form-label">纬度</label>
+								<div class="layui-input-block">
+									<input type="number" min="34" max="53" step="1" name="lat_du" required lay-verify="required" placeholder="请输入度" autocomplete="off" class="layui-input">
+								</div>
+								<div class="layui-input-block">
+									<input type="number" value=0 min="0" max="59" step="1" name="lat_fen" placeholder="请输入分" autocomplete="off" class="layui-input">
+								</div>
+
+								<div class="layui-input-block">
+									<input type="number" value=0 min="0" max="59" step="0.00001" name="lat_miao" placeholder="请输入秒" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<div class="layui-input-block" style="margin-left: 65px;">
+									<button class="layui-btn" lay-submit lay-filter="formDemo">确定</button>
+									<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+								</div>
+							</div>
+						</form>
+						<script>
+							//Demo
+							layui.use('form', function() {
+								var form = layui.form;
+								//监听提交
+								form.on('submit(formDemo)', function(data) {
+									var longt = DegreeConvertBack(data.field.longt_du, data.field.longt_fen, data.field.longt_miao);
+									var lat = DegreeConvertBack(data.field.lat_du, data.field.lat_fen, data.field.lat_miao);
+									// console.log(longt+" , "+lat);
+									mark_point(longt, lat, "img/locate.png")
+									return false;
+								});
+							});
+							// 经纬度转换
+							function DegreeConvertBack(du, fen, miao) {
+								var numStr = Math.abs(du) + Math.abs(fen) / 60 + Math.abs(miao) / 3600;
+								var num = numStr.toFixed(5);
+								// 
+								return num;
+							}
+						</script>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>
